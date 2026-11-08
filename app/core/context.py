@@ -51,6 +51,7 @@ class AppContext:
     compatibility: object = None      # CompatibilityAnalyzer (needs the full context)
     upgrades: object = None           # UpgradeManager
     upgrade_reports: object = None    # UpgradeReportGenerator
+    report_center: object = None      # ReportCenter (all reports, all formats)
 
     @classmethod
     def create(cls, data_dir: Path | None = None) -> "AppContext":
@@ -84,6 +85,8 @@ class AppContext:
         ctx.compatibility = CompatibilityAnalyzer(ctx)
         ctx.upgrades = UpgradeManager(ctx)
         ctx.upgrade_reports = UpgradeReportGenerator(ctx)
+        from app.modules.reports.report_center import ReportCenter
+        ctx.report_center = ReportCenter(ctx)
         return ctx
 
     def close(self) -> None:

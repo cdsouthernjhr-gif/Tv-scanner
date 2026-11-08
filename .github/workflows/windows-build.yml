@@ -1,0 +1,79 @@
+name: Windows build & test
+
+on:
+  push:
+    branches: ["claude/tv-intelligence-scanner-6dj2mq", "main"]
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Tesseract OCR (optional tool, enables OCR tests)
+        run: choco install tesseract -y --no-progress
+        continue-on-error: true
+
+      - name: Install Python dependencies
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Unit, integration and UI tests (Qt offscreen)
+        env:
+          QT_QPA_PLATFORM: offscreen
+          TVIS_NO_NETWORK: "1"
+        run: python -m pytest -o addopts="" -q -rs --junitxml=test-results.xml
+
+      - name: Self-check from source
+        run: python main.py --data-dir "$env:RUNNER_TEMP\tvis-src" --self-check
+
+      - name: GUI smoke test with the native Windows platform plugin
+        run: python main.py --data-dir "$env:RUNNER_TEMP\tvis-gui" --smoke-test
+
+      - name: Build EXE (PyInstaller)
+        run: pyinstaller installer\tv_intelligence_scanner.spec --noconfirm
+
+      - name: Self-check and GUI smoke test of the built EXE
+        run: |
+          .\dist\TVIntelligenceScanner\TVIntelligenceScanner.exe --data-dir "$env:RUNNER_TEMP\tvis-exe" --self-check | Out-Host
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $p = Start-Process -FilePath .\dist\TVIntelligenceScanner\TVIntelligenceScanner.exe `
+                 -ArgumentList "--data-dir", "$env:RUNNER_TEMP\tvis-exe-gui", "--smoke-test" -Wait -PassThru
+          "EXE smoke test exit code: $($p.ExitCode)"
+          exit $p.ExitCode
+
+      - name: Build installer (Inno Setup)
+        run: |
+          choco install innosetup -y --no-progress
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DMyAppVersion=1.0.0 installer\tvis_setup.iss
+
+      - name: Silent install, run installed EXE, uninstall
+        run: |
+          $setup = Get-ChildItem dist\installer\*.exe | Select-Object -First 1
+          Start-Process $setup.FullName -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/CURRENTUSER", "/DIR=$env:RUNNER_TEMP\tvis-installed" -Wait
+          $exe = "$env:RUNNER_TEMP\tvis-installed\TVIntelligenceScanner.exe"
+          if (-not (Test-Path $exe)) { throw "installed EXE not found" }
+          $p = Start-Process -FilePath $exe -ArgumentList "--data-dir", "$env:RUNNER_TEMP\tvis-inst", "--smoke-test" -Wait -PassThru
+          "Installed EXE smoke test exit code: $($p.ExitCode)"
+          Start-Process "$env:RUNNER_TEMP\tvis-installed\unins000.exe" -ArgumentList "/VERYSILENT" -Wait
+          if (Test-Path $exe) { throw "uninstall left the EXE behind" }
+          exit $p.ExitCode
+
+      - name: Upload test results and installer
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tvis-windows-build
+          path: |
+            test-results.xml
+            dist/installer/*.exe
+          if-no-files-found: warn

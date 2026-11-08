@@ -310,6 +310,12 @@ def test_download_verify_import_and_verified_after_analysis(online, tmp_path):
     assert out["sha256"] == sha and out["expected_sha256"] == sha
     rec = ctx.library.get(out["firmware_id"])
     assert rec.category == "Community" and rec.download_url.endswith("TESTTV55_v2.0.bin") and rec.project_id == p.id
+    assert rec.verification_status == "verified"                     # hash matched the published value
+    assert rec.original_filename == "TESTTV55_v2.0.bin"              # the source's file name is kept
+    assert not any((ctx.config.data_dir / "storage" / "downloads" / "partial").iterdir())
+    assert ctx.library.verify_integrity(rec.id).verification_status == "verified"   # survives re-checks
+    from app.services.dashboard_service import collect_stats
+    assert collect_stats(ctx.db).verified_firmware == 1
     r = ctx.finder.result(rid)
     assert r["match_status"] == "VERIFIED MATCH" and "matches the value published" in r["verification_status"]
     assert ctx.db.query_one("SELECT status FROM firmware_downloads WHERE result_id=?", (rid,))[0] == "completed"

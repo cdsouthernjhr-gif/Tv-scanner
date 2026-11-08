@@ -45,8 +45,9 @@ def test_end_to_end_workflow(qtbot, ctx, sample_image, firmware_file):
 
     w.navigate("Reports")
     rep = w.pages["Reports"]
-    out = rep.generate(p.id)
-    assert out.exists() and rep.table.rowCount() == 1
+    out = rep.generate("tv_identification", p.id, "pdf")
+    assert rep.generate("tv_identification", p.id, "html").read_text().startswith("<!doctype html>")
+    assert out.exists() and rep.table.rowCount() == 2 and rep.subject.count() == 1
 
     w.navigate("Dashboard")
     dash = w.pages["Dashboard"]

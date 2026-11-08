@@ -223,7 +223,11 @@ class FirmwareFinder:
         part_dir.mkdir(parents=True, exist_ok=True)
         q_dir.mkdir(parents=True, exist_ok=True)
         name = safe_component(r["file_name"] or unquote(urlsplit(url).path.rsplit("/", 1)[-1]) or "download.bin")
-        tmp = part_dir / f"{result_id}_{int(time.time())}_{name}"
+        # unique folder, real file name: the library keeps the source's file name (TV updaters and
+        # documented package names depend on it)
+        tmp_dir = part_dir / f"{result_id}_{int(time.time() * 1000)}"
+        tmp_dir.mkdir(parents=True, exist_ok=True)
+        tmp = tmp_dir / name
         limit = int(self.config.get("finder.max_download_bytes", 8 * 1024 ** 3))
         respect_robots = r["source_type"] not in API_DOWNLOAD_SOURCES
         h = hashlib.sha256()
@@ -247,17 +251,17 @@ class FirmwareFinder:
                     h.update(chunk)
                     fh.write(chunk)
         except (DownloadRefused, OfflineError) as exc:
-            tmp.unlink(missing_ok=True)
+            shutil.rmtree(tmp_dir, ignore_errors=True)
             finish("refused", message=str(exc))
             raise
         except Exception as exc:
-            tmp.unlink(missing_ok=True)
+            shutil.rmtree(tmp_dir, ignore_errors=True)
             finish("failed", message=str(exc)[:300])
             raise RuntimeError(f"Download failed: {exc}") from exc
         digest = h.hexdigest()
         expected = (r["sha256"] or "").lower() or None
         if expected and digest != expected:
-            q = q_dir / tmp.name
+            q = q_dir / f"{tmp_dir.name}_{tmp.name}"
             shutil.move(str(tmp), q)
             finish("hash_mismatch", bytes=n, sha256=digest, message=f"quarantined at {q}")
             self.db.execute("UPDATE firmware_search_results SET verification_status=? WHERE id=?",
@@ -266,7 +270,7 @@ class FirmwareFinder:
                                   "File quarantined and NOT added to the library.")
         scan = malware_scan.scan_file(str(tmp))
         if scan.status == "threat":
-            q = q_dir / tmp.name
+            q = q_dir / f"{tmp_dir.name}_{tmp.name}"
             shutil.move(str(tmp), q)
             finish("quarantined", bytes=n, sha256=digest, malware_scan=f"{scan.scanner}: threat",
                    message=scan.detail[:300])
@@ -293,12 +297,19 @@ class FirmwareFinder:
             fid = dup.record.id
         finally:
             tmp.unlink(missing_ok=True)
+            shutil.rmtree(tmp_dir, ignore_errors=True)
         self.db.execute("UPDATE firmware_files SET downloaded_at=strftime('%Y-%m-%dT%H:%M:%SZ','now'),"
                         " download_url=COALESCE(download_url, ?) WHERE id=?", (url, fid))
         finish("completed", bytes=n, sha256=digest, malware_scan=f"{scan.scanner or 'none'}: {scan.status}",
                firmware_id=fid)
         self.db.execute("UPDATE firmware_search_results SET firmware_id=?, downloaded_at=strftime('%Y-%m-%dT%H:%M:%SZ','now')"
                         " WHERE id=?", (fid, result_id))
+        if expected and digest == expected:
+            # independent check: the file equals the hash published by its source → library status 'verified'
+            self.db.execute("UPDATE firmware_files SET verification_status='verified',"
+                            " last_integrity_check=strftime('%Y-%m-%dT%H:%M:%SZ','now') WHERE id=?", (fid,))
+            self.audit.record("firmware.verified", "firmware_file", fid, reason="SHA-256 equals value published by "
+                              f"{r['provider']}", search_result=result_id)
         self._store_download_info(result_id, {"sha256": digest, "expected_sha256": expected,
                                               "https": url.lower().startswith("https://"), "official": official,
                                               "malware_scan": scan.status})
