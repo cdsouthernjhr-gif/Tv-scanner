@@ -79,9 +79,9 @@ class IdentificationPage(QWidget):
         cl = QVBoxLayout(cand_tab)
         crow = QHBoxLayout()
         self.btn_ocr_new = QPushButton("Run OCR on new evidence")
-        self.btn_ocr_new.clicked.connect(self._guard(lambda: self.run_ocr(only_new=True)))
+        self.btn_ocr_new.clicked.connect(lambda: self.run_ocr_async(only_new=True))
         self.btn_ocr_all = QPushButton("Re-run OCR on all")
-        self.btn_ocr_all.clicked.connect(self._guard(lambda: self.run_ocr(only_new=False)))
+        self.btn_ocr_all.clicked.connect(lambda: self.run_ocr_async(only_new=False))
         crow.addWidget(self.btn_ocr_new)
         crow.addWidget(self.btn_ocr_all)
         crow.addStretch()
@@ -157,6 +157,22 @@ class IdentificationPage(QWidget):
         self._load_candidates()
         self.right_tabs.setCurrentIndex(1)
         return res
+
+    def run_ocr_async(self, only_new: bool = True):
+        from app.ui.worker import run_async
+        pid = self.current_project_id()
+        if pid is None:
+            return
+
+        def done(res):
+            self._load_evidence(pid)
+            self._load_candidates()
+            self.right_tabs.setCurrentIndex(1)
+            self.status.setText(f"OCR finished for {len(res)} image(s).")
+        self.status.setText("OCR running…")
+        run_async(lambda: self.ctx.identification.run_ocr_for_project(pid, only_new=only_new), done,
+                  lambda msg: QMessageBox.warning(self, "OCR failed", msg),
+                  busy=[self.btn_ocr_new, self.btn_ocr_all])
 
     def accept(self, row: int):
         group = self._groups[row]

@@ -132,3 +132,58 @@ def test_identification_ocr_accept_to_verified(qtbot, ctx, tmp_path):
     assert ident.form.inputs["model_number"].text() == "UA55AU7000KXXM"
     tid = ident.save_to_catalog()
     assert ident.find_matches()[0].tv_model_id == tid
+
+
+# ---- Phase 3 UI ---------------------------------------------------------------------
+def test_hardware_page_workflow(qtbot, ctx, tmp_path):
+    from synthetic_datasheets import ddr3_datasheet
+    w = MainWindow(ctx)
+    qtbot.addWidget(w)
+    assert not isinstance(w.pages["Hardware Analyzer"], PlannedModulePage)
+    p = ctx.projects.create(TVProject(name="HW"))
+    w.navigate("Hardware Analyzer")
+    hp = w.pages["Hardware Analyzer"]
+    hp.project.select_project(p.id)
+    hp.import_datasheet(ddr3_datasheet(tmp_path / "d.pdf"), vendor="Samsung")
+    assert hp.ds_table.rowCount() == 1
+    assert hp.search_datasheets("K4B4G1646E-BYK0")[0].level == "exact"
+    hp.f_cat.setCurrentIndex(hp.f_cat.findData("ram"))
+    hp.f_part.setText("K4B4G1646E-BYK0")
+    hp.f_qty.setValue(2)
+    cid = hp.add_from_form()
+    a = hp.analyze_selected(cid)
+    assert a.match_status == "datasheet_exact"
+    assert hp.facts.rowCount() > 3                      # selection shows the facts
+    assert "1 GB total" in hp.summary.toPlainText()
+    for fmt in ("PDF report", "XLSX", "CSV", "JSON"):
+        assert hp.export(fmt).exists()
+
+
+def test_background_worker(qtbot):
+    from PySide6.QtWidgets import QPushButton
+    from app.ui.worker import busy_count, run_async
+    btn = QPushButton()
+    qtbot.addWidget(btn)
+    got, errs = [], []
+    run_async(lambda: 6 * 7, got.append, errs.append, busy=[btn])
+    assert not btn.isEnabled()
+    qtbot.waitUntil(lambda: got == [42], timeout=5000)
+    assert btn.isEnabled() and busy_count() == 0
+    run_async(lambda: 1 / 0, got.append, errs.append)
+    qtbot.waitUntil(lambda: len(errs) == 1, timeout=5000)
+    assert "division" in errs[0]
+
+
+@needs_ocr
+def test_visual_scanner_async_ocr(qtbot, ctx, tmp_path):
+    w = MainWindow(ctx)
+    qtbot.addWidget(w)
+    p = ctx.projects.create(TVProject(name="Async"))
+    ev = ctx.evidence.add_image(p.id, chip_marking(tmp_path / "c.png", ["MSD6A648"]), "chip")
+    w.navigate("Visual Scanner")
+    vs = w.pages["Visual Scanner"]
+    vs.select_evidence(ev.id)
+    vs.run_ocr_async()
+    assert not vs.btn_ocr.isEnabled()                   # UI stays responsive, button busy
+    qtbot.waitUntil(lambda: vs._last is not None, timeout=60000)
+    assert vs.btn_ocr.isEnabled() and vs.markings.rowCount() >= 1

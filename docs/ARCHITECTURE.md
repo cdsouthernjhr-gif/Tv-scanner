@@ -1,6 +1,6 @@
 # TV Intelligence Scanner — Technical Architecture
 
-Version 0.2 (Phases 1–2 implemented). This document is the reference for all later phases.
+Version 0.3 (Phases 1–3 implemented). This document is the reference for all later phases.
 
 ## 1. Goals and non-negotiable principles
 
@@ -88,10 +88,14 @@ time, verification_status) → `firmware_analysis` (analyzer, result JSON).
 * Identification status: `unknown → partial → identified → verified`; `verified` needs manufacturer + model backed by accepted image evidence. Source: `manual / evidence / mixed`.
 See `app/modules/visual_scanner/README.md` for confidence formulas.
 
-### Phase 3 — Hardware Analyzer
-* Component DB seeded from curated JSON in `database/seed/` (chipsets, memory_chips, display_panels) with `source_reference` required.
-* Chip-marking matcher: normalised part-number matching (O/0, I/1 confusions) → candidate list with scores; manual verification sets `verified_by_user=1`.
-* Capacity/type only filled when the part number decodes unambiguously or the datasheet states it.
+### Phase 3 — Hardware Analyzer (implemented)
+* `modules/hardware_analyzer/decoders.py` — memory part-number decoders (`resources/data/part_decoders.json`).
+* `modules/hardware_analyzer/datasheets.py` — datasheet library (read-only PDFs, pypdf text per page, part index, exact/family match, fact extraction with page refs).
+* `modules/hardware_analyzer/service.py` — analysis pipeline (sanity check → marking rule → decoder → reference DB → datasheet → corroboration), board summary, reference DB.
+* `modules/reports/hardware_report.py` — Hardware/Motherboard/Chipset report (PDF) + CSV/JSON/XLSX.
+* `ui/worker.py` — QThreadPool worker; OCR, datasheet import and bulk analysis run off the UI thread.
+* Migration `0003`: `datasheets`, `datasheet_pages`, `datasheet_parts`, `component_specs` (one row per fact with source + confidence), extra `hardware_components` columns.
+See `app/modules/hardware_analyzer/README.md` for evidence levels and summary rules.
 
 ### Phase 4 — Firmware Analyzer
 * `signatures.py` (done, Phase 1) → `binwalk` adapter (`integrations/binwalk`) for embedded offsets; entropy analysis for encryption indicators; strings extraction; version/kernel/arch heuristics (ELF header `e_machine`, uImage header, `Linux version` strings); safe extraction with path-traversal and size-bomb limits into the workspace; diff of two firmware (per-partition hashes); `integrations/ghidra` via `analyzeHeadless` subprocess on extracted binaries.

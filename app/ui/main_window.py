@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (QHBoxLayout, QListWidget, QMainWindow, QStackedWi
 from app.core.config import APP_NAME, APP_VERSION
 from app.ui.pages.dashboard_page import DashboardPage
 from app.ui.pages.firmware_library_page import FirmwareLibraryPage
+from app.ui.pages.hardware_page import HardwarePage
 from app.ui.pages.identification_page import IdentificationPage
 from app.ui.pages.new_project_page import NewProjectPage
 from app.ui.pages.planned_page import PLANNED, PlannedModulePage
@@ -37,6 +38,7 @@ class MainWindow(QMainWindow):
             "Reports": ReportsPage(ctx),
             "Settings": SettingsPage(ctx),
             "Visual Scanner": VisualScannerPage(ctx),
+            "Hardware Analyzer": HardwarePage(ctx),
         }
         for name, (phase, desc) in PLANNED.items():
             if name not in self.pages:

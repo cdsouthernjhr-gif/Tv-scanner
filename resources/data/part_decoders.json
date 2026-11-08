@@ -1,0 +1,91 @@
+{
+  "_comment": "Part-number decoders for memory devices, based on the vendors' published part-numbering schemes. A decoder only fires on a FULL match of its pattern. Decoded values are labelled 'decoder' in reports and must be confirmed against the datasheet. Density is expressed in bits. Named groups: depth/width (density = depth Mi x width), dens (e.g. 4G = 4 Gbit), org (code looked up in org_map), mbit (megabits).",
+  "decoders": [
+    {
+      "id": "samsung_ddr",
+      "vendor": "Samsung",
+      "pattern": "^K4(?P<fam>[AB])(?P<dens>\\d+G)(?P<org>04|08|16)",
+      "family_map": {"A": "DDR4 SDRAM", "B": "DDR3 SDRAM"},
+      "org_map": {"04": "x4", "08": "x8", "16": "x16"},
+      "scheme": "Samsung DRAM part numbering (K4 + family + density + organisation)",
+      "confidence": 0.8
+    },
+    {
+      "id": "skhynix_ddr3",
+      "vendor": "SK hynix",
+      "pattern": "^H5T(?P<fam>[QC])(?P<dens>\\d+G)(?P<org>[468])3",
+      "family_map": {"Q": "DDR3 SDRAM", "C": "DDR3L SDRAM"},
+      "org_map": {"4": "x4", "8": "x8", "6": "x16"},
+      "scheme": "SK hynix DDR3 part numbering (H5T + voltage + density + organisation + banks)",
+      "confidence": 0.75
+    },
+    {
+      "id": "skhynix_ddr4",
+      "vendor": "SK hynix",
+      "pattern": "^H5AN(?P<dens>\\d+G)(?P<org>[468])N",
+      "fixed_type": "DDR4 SDRAM",
+      "org_map": {"4": "x4", "8": "x8", "6": "x16"},
+      "scheme": "SK hynix DDR4 part numbering (H5AN + density + organisation)",
+      "confidence": 0.75
+    },
+    {
+      "id": "micron_ddr",
+      "vendor": "Micron",
+      "pattern": "^MT4(?P<fam>1J|1K|0A)(?P<depth>\\d+)M(?P<width>4|8|16)",
+      "family_map": {"1J": "DDR3 SDRAM", "1K": "DDR3L SDRAM", "0A": "DDR4 SDRAM"},
+      "scheme": "Micron DRAM part numbering (MT + family + depth M + width)",
+      "confidence": 0.8,
+      "note": "Applies to the full part number only. Micron packages are usually marked with a 5-character FBGA code instead, which must be decoded with Micron's FBGA decoder."
+    },
+    {
+      "id": "nanya_ddr",
+      "vendor": "Nanya",
+      "pattern": "^NT5(?P<fam>CB|CC|AD)(?P<depth>\\d+)M(?P<width>4|8|16)",
+      "family_map": {"CB": "DDR3 SDRAM", "CC": "DDR3L SDRAM", "AD": "DDR4 SDRAM"},
+      "scheme": "Nanya DRAM part numbering (NT5 + family + depth M + width)",
+      "confidence": 0.75
+    },
+    {
+      "id": "winbond_spi_nor",
+      "vendor": "Winbond",
+      "pattern": "^W25Q(?P<mbit>16|32|64|128|256|512)[A-Z]",
+      "fixed_type": "SPI NOR flash",
+      "scheme": "Winbond SpiFlash naming (W25Q + density in Mbit)",
+      "confidence": 0.8
+    },
+    {
+      "id": "winbond_spi_nand",
+      "vendor": "Winbond",
+      "pattern": "^W25N(?P<gbit>01|02|04)G",
+      "fixed_type": "SPI NAND flash",
+      "scheme": "Winbond SpiFlash NAND naming (W25N + density in Gbit + G)",
+      "confidence": 0.75
+    },
+    {
+      "id": "gigadevice_spi_nor",
+      "vendor": "GigaDevice",
+      "pattern": "^GD25(?:LQ|Q|B|LB)(?P<mbit>16|32|64|128|256|512)[A-Z]",
+      "fixed_type": "SPI NOR flash",
+      "scheme": "GigaDevice GD25 naming (GD25 + series + density in Mbit)",
+      "confidence": 0.75
+    },
+    {
+      "id": "macronix_spi_nor",
+      "vendor": "Macronix",
+      "pattern": "^MX25[LRUV](?P<mbit>16|32|64|128|256|512)\\d{2}[A-Z]",
+      "fixed_type": "SPI NOR flash",
+      "scheme": "Macronix MX25 naming (MX25 + voltage + density in Mbit + 2-digit version)",
+      "confidence": 0.7
+    },
+    {
+      "id": "samsung_emmc",
+      "vendor": "Samsung",
+      "pattern": "^KLM(?P<emmc>4G|8G|AG|BG|CG)",
+      "fixed_type": "eMMC",
+      "emmc_map": {"4G": 4, "8G": 8, "AG": 16, "BG": 32, "CG": 64},
+      "scheme": "Samsung eMMC naming (KLM + capacity code)",
+      "confidence": 0.7,
+      "note": "Capacity is user capacity class in gigabytes (GB)."
+    }
+  ]
+}

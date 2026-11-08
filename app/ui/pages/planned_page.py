@@ -25,9 +25,6 @@ class PlannedModulePage(QWidget):
 
 
 PLANNED = {
-    "Hardware Analyzer": (3, "Component database (SoC, RAM, flash, Wi-Fi/BT, audio, T-Con, PSU, panel), "
-                             "datasheet matching and hardware reports. Capacities are only reported "
-                             "when proven by evidence."),
     "Firmware Analyzer": (4, "Binwalk scanning, filesystem/kernel/architecture detection, partition "
                              "info, entropy-based encryption indicators, strings, comparison and Ghidra "
                              "headless integration, all on isolated working copies."),

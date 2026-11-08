@@ -17,9 +17,9 @@ class ReportsPage(QWidget):
         self.ctx = ctx
         lay = QVBoxLayout(self)
         lay.addWidget(page_title("Reports"))
-        lay.addWidget(notice("Phase 1 provides the TV Identification Report (PDF). Hardware, firmware, "
-                             "search, compatibility and upgrade reports and XLSX/CSV/JSON/HTML export "
-                             "are added with their modules in later phases."))
+        lay.addWidget(notice("Available: TV Identification Report (PDF) and Hardware Report (PDF, XLSX, CSV, "
+                             "JSON — also from the Hardware Analyzer page). Firmware, search, compatibility and "
+                             "upgrade reports are added with their modules in later phases."))
         row = QHBoxLayout()
         row.addWidget(QLabel("Project:"))
         self.project = ProjectSelector(ctx)
@@ -27,6 +27,9 @@ class ReportsPage(QWidget):
         self.btn_pdf = QPushButton("Generate TV Identification Report (PDF)")
         self.btn_pdf.clicked.connect(self._on_generate)
         row.addWidget(self.btn_pdf)
+        self.btn_hw = QPushButton("Hardware Report (PDF)")
+        self.btn_hw.clicked.connect(self._on_hw)
+        row.addWidget(self.btn_hw)
         lay.addLayout(row)
         self.table = make_table(["ID", "Project", "Type", "Format", "Created (UTC)", "SHA-256", "Path"])
         self.table.doubleClicked.connect(self._on_open)
@@ -49,6 +52,19 @@ class ReportsPage(QWidget):
             QMessageBox.information(self, "Report generated", str(out))
         except Exception as exc:
             log.exception("Report generation failed")
+            QMessageBox.critical(self, "Report failed", str(exc))
+
+    def _on_hw(self) -> None:
+        pid = self.project.currentData()
+        if pid is None:
+            QMessageBox.warning(self, "No project", "Register a TV project first.")
+            return
+        try:
+            out = self.ctx.hardware_reports.generate_pdf(pid)
+            self.refresh()
+            QMessageBox.information(self, "Report generated", str(out))
+        except Exception as exc:
+            log.exception("Hardware report failed")
             QMessageBox.critical(self, "Report failed", str(exc))
 
     def _on_open(self) -> None:

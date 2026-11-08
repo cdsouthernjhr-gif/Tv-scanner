@@ -298,16 +298,22 @@ class IdentificationService:
         m = self.db.query_one("SELECT * FROM marking_detections WHERE id=?", (marking_id,))
         if m is None:
             raise KeyError(marking_id)
-        part = (part_number or m["normalized"]).strip()
-        ctype = component_type or m["candidate_type"] or ("board" if m["kind"] == "pcb" else "chip")
+        from app.modules.hardware_analyzer.service import category_for
+        part = (part_number or m["normalized"]).strip().upper()
+        ctype = category_for(component_type or m["candidate_type"]) if (component_type or m["candidate_type"]) \
+            else ("board" if m["kind"] == "pcb" else "other")
         vendor = manufacturer if manufacturer is not None else m["candidate_vendor"]
+        ev_type = self.db.scalar("SELECT evidence_type FROM scan_evidence WHERE id=?", (m["evidence_id"],))
+        board = {"mainboard": "mainboard", "power_supply": "power_supply", "tcon": "tcon",
+                 "panel_label": "panel"}.get(ev_type, "other")
         source = f"evidence #{m['evidence_id']} OCR; rule {m['rule_id'] or 'none'}"
         with self.db.transaction() as tx:
             hid = tx.execute(
                 "INSERT INTO hardware_components(project_id, component_type, component_name, manufacturer,"
-                " part_number, evidence_id, confidence, verified_by_user, source_reference)"
-                " VALUES (?,?,?,?,?,?,?,1,?)",
-                (m["project_id"], ctype, part, vendor, part, m["evidence_id"], m["confidence"], source)).lastrowid
+                " part_number, evidence_id, confidence, verified_by_user, source_reference, board)"
+                " VALUES (?,?,?,?,?,?,?,1,?,?)",
+                (m["project_id"], ctype, m["candidate_type"] or ctype, vendor, part, m["evidence_id"],
+                 m["confidence"], source, board)).lastrowid
             tx.execute("UPDATE marking_detections SET status='confirmed', hardware_component_id=? WHERE id=?",
                        (hid, marking_id))
         self.audit.record("marking.confirm", "tv_project", m["project_id"], marking_id=marking_id,

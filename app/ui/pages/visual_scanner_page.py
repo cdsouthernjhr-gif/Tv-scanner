@@ -135,7 +135,7 @@ class VisualScannerPage(QWidget):
         self.btn_clear.clicked.connect(lambda: self.canvas.set_crop(None))
         self.btn_preview.clicked.connect(self._guard(self.preview))
         self.btn_save.clicked.connect(self._guard(self._save_processed))
-        self.btn_ocr.clicked.connect(self._guard(self.run_ocr))
+        self.btn_ocr.clicked.connect(self.run_ocr_async)
         for w in (QLabel("Preset"), self.preset, QLabel("Layout"), self.psm, QLabel("Engine"), self.engine,
                   self.btn_rl, self.btn_rr, self.btn_clear, self.btn_preview, self.btn_save, self.btn_ocr):
             ctl.addWidget(w)
@@ -299,15 +299,33 @@ class VisualScannerPage(QWidget):
         self.evidence.setCurrentIndex(self.evidence.findData(ev.id))
         return ev
 
-    def run_ocr(self):
+    def _ocr_call(self):
+        """Collect parameters on the UI thread; return a callable safe to run in a worker."""
         eid = self.current_evidence_id()
         if eid is None:
             raise ValueError("No evidence selected")
-        preset = self.preset.currentData()
-        psm = self.psm.currentData()
-        r = self.ctx.identification.run_ocr(eid, preset=preset, engine=self.engine.currentData(), psm=psm,
-                                            crop_rect=self.canvas.crop_rect, rotation=self.rotation,
-                                            auto=preset is None and psm is None)
+        preset, psm = self.preset.currentData(), self.psm.currentData()
+        kw = dict(preset=preset, engine=self.engine.currentData(), psm=psm, crop_rect=self.canvas.crop_rect,
+                  rotation=self.rotation, auto=preset is None and psm is None)
+        return lambda: self.ctx.identification.run_ocr(eid, **kw)
+
+    def run_ocr(self):
+        r = self._ocr_call()()
+        self._apply_ocr(r)
+        return r
+
+    def run_ocr_async(self):
+        from app.ui.worker import run_async
+        try:
+            call = self._ocr_call()
+        except Exception as exc:
+            QMessageBox.warning(self, "Visual Scanner", str(exc))
+            return
+        self.status.setText("OCR running…")
+        run_async(call, self._apply_ocr, lambda msg: QMessageBox.warning(self, "OCR failed", msg),
+                  busy=[self.btn_ocr, self.btn_preview, self.btn_save])
+
+    def _apply_ocr(self, r):
         self._last = r
         self.text.setPlainText(r.text)
         self._show_processed(r.processed_image, r.tokens)
@@ -317,7 +335,6 @@ class VisualScannerPage(QWidget):
                             f"(review in TV Identification) | {len(r.markings)} markings")
         if r.markings:
             self.tabs.setCurrentIndex(2)
-        return r
 
     def _load_markings(self):
         pid = self.project.currentData()

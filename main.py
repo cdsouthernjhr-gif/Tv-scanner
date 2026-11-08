@@ -41,7 +41,9 @@ def main(argv=None) -> int:
         print(f"OCR engines    : {', '.join(ctx.identification.engine(e).version() for e in engines) or 'none'}")
         from app.modules.identification.parsers import _brand_data
         from app.modules.visual_scanner.markings import load_rules
-        print(f"Rule data      : {len(load_rules())} marking rules, {len(_brand_data()['brands'])} brands")
+        from app.modules.hardware_analyzer.decoders import load_decoders
+        print(f"Rule data      : {len(load_rules())} marking rules, {len(_brand_data()['brands'])} brands, "
+              f"{len(load_decoders())} part-number decoders")
         ctx.close()
         return 0
 
