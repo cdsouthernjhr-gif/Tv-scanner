@@ -74,10 +74,30 @@ class OcrEngine(ABC):
     def recognize(self, image: np.ndarray, language: str = "eng", psm: int = 11) -> OcrResult: ...
 
 
+WINDOWS_TESSERACT = (r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+                     r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe")
+
+
+def default_tesseract() -> str | None:
+    """Tesseract on PATH, else the standard Windows install folders (the UB-Mannheim/Chocolatey
+    installers do not always add Tesseract to PATH)."""
+    import os
+    import shutil
+    found = shutil.which("tesseract")
+    if found:
+        return found
+    if os.name == "nt":
+        for c in WINDOWS_TESSERACT:
+            if os.path.isfile(c):
+                return c
+    return None
+
+
 class TesseractEngine(OcrEngine):
     name = "tesseract"
 
     def __init__(self, binary: str | None = None):
+        binary = binary or default_tesseract()
         self.binary = binary
         self._version: str | None = None
         try:

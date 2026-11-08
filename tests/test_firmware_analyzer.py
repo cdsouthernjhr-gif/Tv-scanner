@@ -270,7 +270,8 @@ def _fake_headless(tmp_path: Path) -> str:
 
 def test_ghidra_command_and_workspace_guard(tmp_path):
     cmd = gh.build_command("aH", Path("/w/bin"), Path("/w/p"), Path("/w/o.json"), 60, "ARM:LE:32:v8")
-    assert cmd[:3] == ["aH", "/w/p", "tvis_tmp"] and "-deleteProject" in cmd and cmd[-2:] == ["-processor", "ARM:LE:32:v8"]
+    assert cmd[:3] == ["aH", str(Path("/w/p")), "tvis_tmp"]          # OS-native path form (\\w\\p on Windows)
+    assert "-deleteProject" in cmd and cmd[-2:] == ["-processor", "ARM:LE:32:v8"]
     with pytest.raises(ValueError):
         gh.analyze("aH", tmp_path / "x", tmp_path / "ws")      # binary outside the workspace
 
