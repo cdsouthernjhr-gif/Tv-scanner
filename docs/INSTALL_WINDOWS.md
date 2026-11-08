@@ -51,9 +51,10 @@ Detected automatically on the *Settings* page.
 
 | Tool | Used from | Install |
 |---|---|---|
-| 7-Zip | Phase 4 | https://www.7-zip.org (default path is detected) |
-| Binwalk | Phase 4 | Via WSL2 (`sudo apt install binwalk`) or binwalk v3 Windows build |
-| Ghidra | Phase 4 | ghidra-sre.org; set `tools.ghidra_headless` to `support\analyzeHeadless.bat` |
+| 7-Zip | Phase 4 — **recommended** | https://www.7-zip.org (default path detected). Extracts SquashFS, ext2/3/4, CramFS, 7z on Windows |
+| Binwalk | Phase 4 (optional) | WSL2: `sudo apt install binwalk`, then set `"binwalk": "wsl"` in settings.json |
+| JFFS2 / UBI extraction | Phase 4 | Installed by `requirements.txt` (`jefferson`, `ubi_reader`) |
+| Ghidra | Phase 4 (optional) | ghidra-sre.org + a supported JDK; set `GHIDRA_INSTALL_DIR` or `tools.ghidra_headless` to `support\analyzeHeadless.bat` |
 | HxD | Phase 4 | mh-nexus.de |
 | WSL2 | Phase 4 | `wsl --install` (admin PowerShell) |
 

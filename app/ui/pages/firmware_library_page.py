@@ -6,6 +6,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (QComboBox, QFileDialog, QFormLayout, QHBoxLayout, QLabel,
                                QLineEdit, QMessageBox, QPushButton, QVBoxLayout, QWidget)
 
@@ -26,6 +27,8 @@ def open_in_file_manager(path: Path) -> None:
 
 
 class FirmwareLibraryPage(QWidget):
+    open_firmware = Signal(int)
+
     def __init__(self, ctx):
         super().__init__()
         self.ctx = ctx
@@ -68,7 +71,9 @@ class FirmwareLibraryPage(QWidget):
         self.filter = QLineEdit()
         self.filter.setPlaceholderText("filter by mainboard…")
         self.filter.textChanged.connect(self.refresh)
-        for b in (self.btn_import, self.btn_verify, self.btn_open):
+        self.btn_analyze = QPushButton("Analyze selected")
+        self.btn_analyze.clicked.connect(self._on_analyze)
+        for b in (self.btn_import, self.btn_verify, self.btn_analyze, self.btn_open):
             btns.addWidget(b)
         btns.addStretch()
         btns.addWidget(self.filter)
@@ -128,6 +133,11 @@ class FirmwareLibraryPage(QWidget):
                                  f"Stored file does not match its recorded SHA-256:\n{rec.stored_path}")
         else:
             QMessageBox.information(self, "Integrity OK", f"SHA-256 matches: {rec.sha256}")
+
+    def _on_analyze(self) -> None:
+        fid = selected_id(self.table)
+        if fid is not None:
+            self.open_firmware.emit(fid)
 
     def refresh(self) -> None:
         self.project.reload()

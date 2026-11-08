@@ -10,6 +10,9 @@ opencv-python-headless>=4.9
 pytesseract>=0.3.10
 # Phase 3 – datasheet PDF text extraction
 pypdf>=4.0
+# Phase 4 – JFFS2 / UBI(FS) extraction (pure-Python CLIs; Windows wheels available)
+jefferson>=0.4.5
+ubi_reader>=0.8.9
 # paddleocr + paddlepaddle  # optional second OCR engine (~1 GB); auto-detected if installed
 
 # Planned for later phases

@@ -25,9 +25,6 @@ class PlannedModulePage(QWidget):
 
 
 PLANNED = {
-    "Firmware Analyzer": (4, "Binwalk scanning, filesystem/kernel/architecture detection, partition "
-                             "info, entropy-based encryption indicators, strings, comparison and Ghidra "
-                             "headless integration, all on isolated working copies."),
     "Universal Firmware Finder": (5, "Provider-based search (official manufacturer pages, GitHub REST API, "
                                      "GitLab, technical docs, archives, community) with rate limiting, "
                                      "robots.txt compliance, deduplication, provenance and match scoring."),

@@ -17,5 +17,10 @@
   },
   "ui": {
     "theme": "dark"
+  },
+  "analysis": {
+    "use_binwalk": true,
+    "max_extract_bytes": 2147483648,
+    "max_extract_files": 100000
   }
 }

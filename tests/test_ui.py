@@ -187,3 +187,54 @@ def test_visual_scanner_async_ocr(qtbot, ctx, tmp_path):
     assert not vs.btn_ocr.isEnabled()                   # UI stays responsive, button busy
     qtbot.waitUntil(lambda: vs._last is not None, timeout=60000)
     assert vs.btn_ocr.isEnabled() and vs.markings.rowCount() >= 1
+
+
+# ---- Phase 4 UI ---------------------------------------------------------------------
+def test_firmware_analyzer_page(qtbot, ctx, tmp_path):
+    import firmware_builders as fb
+    a, b = tmp_path / "a.bin", tmp_path / "b.bin"
+    fb.composite(a, "4.9.118")
+    fb.composite(b, "4.9.200")
+    ra, rb = ctx.library.import_file(a), ctx.library.import_file(b)
+    w = MainWindow(ctx)
+    qtbot.addWidget(w)
+    assert not isinstance(w.pages["Firmware Analyzer"], PlannedModulePage)
+    lib = w.pages["Firmware Library"]
+    w.navigate("Firmware Library")
+    lib.table.selectRow([lib.table.item(r, 0).data(0x0100) for r in range(lib.table.rowCount())].index(ra.id))
+    lib._on_analyze()                                         # jumps to the analyzer with this firmware
+    fa = w.pages["Firmware Analyzer"]
+    assert w.stack.currentWidget() is fa and fa.fid() == ra.id
+    fa.opt_binwalk.setChecked(False)
+    rid = fa.analyze()
+    assert fa.run_id == rid and "UNCHANGED" in fa.integrity.text()
+    assert fa.meta.rowCount() > 5 and fa.comps.rowCount() > 5
+    assert fa.map.file_size == ra.file_size and fa.map.component_at(fa.map._bar_rect().left() + 1) is None
+    fa.show_hex(0x10000)
+    assert fa.hex.toPlainText().startswith("00010000  27 05 19 56")
+    assert "Linux version 4.9.118" in fa.search_strings("Linux version")[0][1]
+    fa.file_filter.setCurrentText("sensitive")
+    assert all(fa.files.item(r, 2).text() == "sensitive" for r in range(fa.files.rowCount()))
+    assert fa.report("pdf").exists() and fa.report("json").exists()
+    fa.select_firmware(rb.id)
+    fa.analyze()
+    res = fa.compare(ra.id)
+    assert "kernel_version" in res["metadata"] and "Blocks identical" in fa.cmp_out.toPlainText()
+    with pytest.raises(ValueError):
+        fa.compare(rb.id)
+
+
+def test_firmware_analyzer_async(qtbot, ctx, tmp_path):
+    import firmware_builders as fb
+    p = tmp_path / "fw.bin"
+    fb.composite(p)
+    rec = ctx.library.import_file(p)
+    w = MainWindow(ctx)
+    qtbot.addWidget(w)
+    fa = w.pages["Firmware Analyzer"]
+    fa.select_firmware(rec.id)
+    fa.opt_binwalk.setChecked(False)
+    fa.analyze_async()
+    assert not fa.btn_analyze.isEnabled()
+    qtbot.waitUntil(lambda: fa.run_id is not None, timeout=120000)
+    assert "completed" in fa.integrity.text()

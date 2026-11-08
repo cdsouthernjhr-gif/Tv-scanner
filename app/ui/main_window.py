@@ -6,6 +6,7 @@ from PySide6.QtWidgets import (QHBoxLayout, QListWidget, QMainWindow, QStackedWi
 
 from app.core.config import APP_NAME, APP_VERSION
 from app.ui.pages.dashboard_page import DashboardPage
+from app.ui.pages.firmware_analyzer_page import FirmwareAnalyzerPage
 from app.ui.pages.firmware_library_page import FirmwareLibraryPage
 from app.ui.pages.hardware_page import HardwarePage
 from app.ui.pages.identification_page import IdentificationPage
@@ -39,6 +40,7 @@ class MainWindow(QMainWindow):
             "Settings": SettingsPage(ctx),
             "Visual Scanner": VisualScannerPage(ctx),
             "Hardware Analyzer": HardwarePage(ctx),
+            "Firmware Analyzer": FirmwareAnalyzerPage(ctx),
         }
         for name, (phase, desc) in PLANNED.items():
             if name not in self.pages:
@@ -69,6 +71,7 @@ class MainWindow(QMainWindow):
 
         np: NewProjectPage = self.pages["New TV Project"]  # type: ignore[assignment]
         np.open_project.connect(self.open_project)
+        self.pages["Firmware Library"].open_firmware.connect(self.open_firmware)
         self.sidebar.setCurrentRow(0)
 
     def navigate(self, name: str) -> None:
@@ -78,6 +81,10 @@ class MainWindow(QMainWindow):
         ident: IdentificationPage = self.pages["TV Identification"]  # type: ignore[assignment]
         self.navigate("TV Identification")
         ident.selector.select_project(project_id)
+
+    def open_firmware(self, firmware_id: int) -> None:
+        self.navigate("Firmware Analyzer")
+        self.pages["Firmware Analyzer"].select_firmware(firmware_id)
 
     def _switch(self, row: int) -> None:
         self.stack.setCurrentIndex(row)

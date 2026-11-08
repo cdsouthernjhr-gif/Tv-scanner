@@ -10,8 +10,8 @@ package and must:
 
 | Package | Phase | Status |
 |---|---|---|
-| `binwalk/` | 4 | Not implemented — tool detection available (`services/external_tools.py`) |
-| `ghidra/` | 4 | Not implemented — headless (`analyzeHeadless`) adapter planned |
+| `binwalk/` | 4 | Implemented — v2 tested, v3 parser untested; see `binwalk/README.md` |
+| `ghidra/` | 4 | Implemented — tested with stand-in only; see `ghidra/README.md` |
 | `github/` | 5 | Not implemented — REST search + releases, optional token via keyring |
 | `manufacturer/` | 5 | Not implemented — per-brand official support-page adapters |
 | `community/` | 5 | Not implemented — public, ToS-compliant sources only |

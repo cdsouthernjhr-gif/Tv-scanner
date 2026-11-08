@@ -44,6 +44,9 @@ def main(argv=None) -> int:
         from app.modules.hardware_analyzer.decoders import load_decoders
         print(f"Rule data      : {len(load_rules())} marking rules, {len(_brand_data()['brands'])} brands, "
               f"{len(load_decoders())} part-number decoders")
+        fw_tools = ctx.firmware.tools()
+        print("Firmware tools : " + ", ".join(f"{k}={'yes' if fw_tools.get(k) else 'no'}" for k in
+                                              ("binwalk_cmd", "seven_zip", "unsquashfs", "jefferson", "ubireader", "ghidra")))
         ctx.close()
         return 0
 

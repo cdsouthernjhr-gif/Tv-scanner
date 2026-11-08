@@ -1,6 +1,6 @@
 # TV Intelligence Scanner — Technical Architecture
 
-Version 0.3 (Phases 1–3 implemented). This document is the reference for all later phases.
+Version 0.4 (Phases 1–4 implemented). This document is the reference for all later phases.
 
 ## 1. Goals and non-negotiable principles
 
@@ -97,8 +97,13 @@ See `app/modules/visual_scanner/README.md` for confidence formulas.
 * Migration `0003`: `datasheets`, `datasheet_pages`, `datasheet_parts`, `component_specs` (one row per fact with source + confidence), extra `hardware_components` columns.
 See `app/modules/hardware_analyzer/README.md` for evidence levels and summary rules.
 
-### Phase 4 — Firmware Analyzer
-* `signatures.py` (done, Phase 1) → `binwalk` adapter (`integrations/binwalk`) for embedded offsets; entropy analysis for encryption indicators; strings extraction; version/kernel/arch heuristics (ELF header `e_machine`, uImage header, `Linux version` strings); safe extraction with path-traversal and size-bomb limits into the workspace; diff of two firmware (per-partition hashes); `integrations/ghidra` via `analyzeHeadless` subprocess on extracted binaries.
+### Phase 4 — Firmware Analyzer (implemented)
+* `modules/firmware_analyzer/scanner.py` — validated deep signature scan (mmap), nesting, gaps.
+* `entropy.py`, `strings_analysis.py`, `metadata.py` (facts with provenance, merge + conflict), `extractor.py` (safe extraction), `config_discovery.py`, `compare.py`, `hexview.py`, `service.py` (run orchestration, integrity before/after).
+* `integrations/binwalk/adapter.py` (v2/v3, WSL), `integrations/ghidra/adapter.py` + `scripts/TVISSummary.java`.
+* `modules/reports/firmware_report.py` — PDF (structure/entropy drawing) + JSON.
+* Migration `0004`: `firmware_analysis_runs`, `firmware_components`, `firmware_metadata`, `firmware_extracted_files`, `firmware_analysis.run_id`.
+See `app/modules/firmware_analyzer/README.md`.
 
 ### Phase 5 — Universal Firmware Finder
 ```
