@@ -24,10 +24,5 @@ class PlannedModulePage(QWidget):
         lay.addStretch()
 
 
-PLANNED = {
-    "Compatibility Analyzer": (7, "Evidence-based verdicts (VERIFIED COMPATIBLE … INSUFFICIENT EVIDENCE) "
-                                  "with reasons for every decision."),
-    "Firmware Upgrade Manager": (7, "Per-model upgrade profiles and plugin adapters for official methods "
-                                    "only; validation, backup, explicit confirmation, audit log, "
-                                    "recovery guidance. No automatic flashing."),
-}
+PLANNED: dict = {}   # all modules of the specification are implemented
+

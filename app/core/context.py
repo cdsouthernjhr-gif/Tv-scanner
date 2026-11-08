@@ -48,6 +48,9 @@ class AppContext:
     software: SoftwareAnalyzer
     service_menus: ServiceMenuDB
     software_reports: SoftwareReportGenerator
+    compatibility: object = None      # CompatibilityAnalyzer (needs the full context)
+    upgrades: object = None           # UpgradeManager
+    upgrade_reports: object = None    # UpgradeReportGenerator
 
     @classmethod
     def create(cls, data_dir: Path | None = None) -> "AppContext":
@@ -72,9 +75,16 @@ class AppContext:
         service_menus = ServiceMenuDB(db, audit, datasheets)
         software_reports = SoftwareReportGenerator(config, db, audit, projects, software, service_menus)
         audit.record("app.start", details_dir=str(config.data_dir))
-        return cls(config, db, audit, projects, evidence, library, reports, catalog, identification,
-                   datasheets, hardware, hardware_reports, firmware, firmware_reports, secrets, finder,
-                   search_reports, software, service_menus, software_reports)
+        ctx = cls(config, db, audit, projects, evidence, library, reports, catalog, identification,
+                  datasheets, hardware, hardware_reports, firmware, firmware_reports, secrets, finder,
+                  search_reports, software, service_menus, software_reports)
+        from app.modules.compatibility.analyzer import CompatibilityAnalyzer
+        from app.modules.reports.upgrade_report import UpgradeReportGenerator
+        from app.modules.upgrade_manager.service import UpgradeManager
+        ctx.compatibility = CompatibilityAnalyzer(ctx)
+        ctx.upgrades = UpgradeManager(ctx)
+        ctx.upgrade_reports = UpgradeReportGenerator(ctx)
+        return ctx
 
     def close(self) -> None:
         self.db.close()

@@ -13,7 +13,7 @@ def test_main_window_navigation(qtbot, ctx):
         w.sidebar.setCurrentRow(i)
         assert w.stack.currentIndex() == i
     planned = [n for n, p in w.pages.items() if isinstance(p, PlannedModulePage)]
-    assert "Compatibility Analyzer" in planned and "Software Analyzer" not in planned
+    assert planned == []                                   # every module is implemented
     assert "Dashboard" not in planned
 
 
@@ -346,3 +346,50 @@ def test_service_menu_page(qtbot, ctx):
     assert sm.actions.rowCount() == 1 and sm.actions.item(0, 4).text() == "planned"
     assert ctx.software_reports.service_report_pdf(p.id).exists()
     assert rid
+
+
+# ---- Phase 7 UI ---------------------------------------------------------------------
+def test_compatibility_and_upgrade_pages(qtbot, ctx, tmp_path):
+    import firmware_builders as fb
+    from test_compatibility_upgrade import PROFILE, probe
+    p = ctx.projects.create(TVProject(name="UP", manufacturer="Acme", model_number="TESTTV55",
+                                      mainboard="TP.MS338.PB801", firmware_version="V1.0"))
+    ctx.hardware.analyze(ctx.hardware.add_component(p.id, "soc", "MSD6A648"))
+    ids = []
+    for name, cat in (("orig.bin", "Original"), ("upgrade_v2.bin", "Official")):
+        f = tmp_path / name
+        fb.composite(f, extra_file=b"board=TP.MS338.PB801")
+        rec = ctx.library.import_file(f, project_id=p.id, category=cat, version="V2.0" if cat == "Official" else None)
+        ctx.firmware.analyze(rec.id, use_binwalk=False)
+        ids.append(rec.id)
+    w = MainWindow(ctx)
+    qtbot.addWidget(w)
+    cp = w.pages["Compatibility Analyzer"]
+    w.navigate("Compatibility Analyzer")
+    cp.project.select_project(p.id)
+    cp.candidate.setCurrentIndex(cp.candidate.findData(ids[1]))
+    r = cp.evaluate()
+    assert r.verdict == "VERIFIED COMPATIBLE" and "VERIFIED COMPATIBLE" in cp.verdict.text()
+    assert cp.table.rowCount() >= 15 and cp.history.rowCount() == 1
+    up = w.pages["Firmware Upgrade Manager"]
+    w.navigate("Firmware Upgrade Manager")
+    for k, v in PROFILE.items():
+        if k in up.pf:
+            up.pf[k].setText(v)
+    up.p_method.setCurrentIndex(up.p_method.findData("official_usb"))
+    pid = up.add_profile()
+    assert up.ptable.rowCount() == 1 and up.ptable.item(0, 7).text() == "NO"
+    ctx.upgrades.verify_profile(pid, "VERIFIED Acme")
+    up.refresh()
+    up.project.select_project(p.id)
+    up.target.setCurrentIndex(up.target.findData(ids[1]))
+    sid = up.start()
+    up.run_checks()
+    assert "VERIFIED COMPATIBLE" in up.steps.item(1, 2).text()
+    ctx.upgrades.step_backup(sid)
+    usb = tmp_path / "USB"
+    usb.mkdir()
+    ctx.upgrades.step_preparation(sid, True, True, ctx.upgrades.confirmation_phrase(sid), str(usb), fs_probe=probe())
+    ctx.upgrades.step_execution(sid, fs_probe=probe())
+    up.load_session(sid)
+    assert "done" in up.steps.item(5, 1).text() and (usb / "upgrade_v2.bin").exists()

@@ -5,6 +5,7 @@ from PySide6.QtWidgets import (QHBoxLayout, QListWidget, QMainWindow, QStackedWi
                                QStatusBar, QWidget)
 
 from app.core.config import APP_NAME, APP_VERSION
+from app.ui.pages.compatibility_page import CompatibilityPage
 from app.ui.pages.dashboard_page import DashboardPage
 from app.ui.pages.firmware_analyzer_page import FirmwareAnalyzerPage
 from app.ui.pages.finder_page import FinderPage
@@ -16,6 +17,7 @@ from app.ui.pages.planned_page import PLANNED, PlannedModulePage
 from app.ui.pages.reports_page import ReportsPage
 from app.ui.pages.service_menu_page import ServiceMenuPage
 from app.ui.pages.software_page import SoftwarePage
+from app.ui.pages.upgrade_page import UpgradePage
 from app.ui.pages.settings_page import SettingsPage
 from app.ui.pages.visual_scanner_page import VisualScannerPage
 from app.ui.widgets import STYLESHEET
@@ -47,6 +49,8 @@ class MainWindow(QMainWindow):
             "Universal Firmware Finder": FinderPage(ctx),
             "Software Analyzer": SoftwarePage(ctx),
             "Factory & Service Menu": ServiceMenuPage(ctx),
+            "Compatibility Analyzer": CompatibilityPage(ctx),
+            "Firmware Upgrade Manager": UpgradePage(ctx),
         }
         for name, (phase, desc) in PLANNED.items():
             if name not in self.pages:

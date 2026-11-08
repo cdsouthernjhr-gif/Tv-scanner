@@ -19,7 +19,7 @@ from typing import Any
 
 APP_NAME = "TV Intelligence Scanner"
 APP_ID = "TVIntelligenceScanner"
-APP_VERSION = "0.6.0"
+APP_VERSION = "0.7.0"
 
 
 def application_root() -> Path:

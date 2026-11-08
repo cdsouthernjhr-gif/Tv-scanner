@@ -130,12 +130,17 @@ def kernel_blob(version: str = "4.9.118") -> bytes:
     return os.urandom(20000) + b"\0" + s + b"U-Boot 2015.04-tv (Jan 01 2020)\0" + os.urandom(20000)
 
 
-def composite(path: Path, version: str = "4.9.118", extra_file: bytes = b"") -> dict:
-    """A realistic multi-part 'TV firmware' made only with Python."""
+def composite(path: Path, version: str = "4.9.118", extra_file: bytes = b"", model: str = "TESTTV55",
+              arch: str = "ARM", signed: bool = True, cmdline: str | None = None,
+              extra_files: dict[str, bytes] | None = None) -> dict:
+    """A realistic multi-part 'TV firmware' made only with Python.
+
+    model/arch/signed/cmdline/extra_files let tests build deliberately (in)compatible variants."""
     parts = {}
     rootfs = {"etc/os-release": b'NAME="Linux"\nVERSION_ID="4.9"\n', "system/build.prop":
-              b"ro.build.version.release=9\nro.product.model=TESTTV55\nro.board.platform=m7642\n",
+              f"ro.build.version.release=9\nro.product.model={model}\nro.board.platform=m7642\n".encode(),
               "etc/shadow": b"root:*:0:0:99999:7:::\n", "etc/app.conf": b"x=1\n" + extra_file}
+    rootfs.update(extra_files or {})
     blob = bytearray(b"TVFW-HDR v1.0 build " + version.encode())
     blob += b"\xff" * (0x10000 - len(blob))
 
@@ -144,7 +149,8 @@ def composite(path: Path, version: str = "4.9.118", extra_file: bytes = b"") -> 
         blob += b"\xff" * ((-len(blob)) % align)
         parts[name] = len(blob)
         blob += data
-    place("uimage", uimage(gzip.compress(kernel_blob(version), mtime=0), name=f"Linux-{version}"))
+    place("uimage", uimage(gzip.compress(kernel_blob(version), mtime=0), name=f"Linux-{version}",
+                           arch={"ARM": 2, "MIPS": 5}[arch]))
     place("dtb", dtb())
     place("initrd_gz", gzip.compress(cpio_newc(rootfs, {"bin/sh": "busybox"}), mtime=0))
     tbuf = io.BytesIO()
@@ -161,10 +167,14 @@ def composite(path: Path, version: str = "4.9.118", extra_file: bytes = b"") -> 
     place("zip", zbuf.getvalue())
     place("xz", lzma.compress(b"config data " * 2000))
     place("bz2", bz2.compress(b"logo data " * 3000))
-    place("elf", elf32_arm())
-    place("boot", android_boot_v0(os.urandom(5000), gzip.compress(cpio_newc({"init": b"#!/bin/sh"}), mtime=0)))
+    if arch == "ARM":
+        place("elf", elf32_arm())
+    boot_args = {"cmdline": cmdline} if cmdline else {}
+    place("boot", android_boot_v0(os.urandom(5000), gzip.compress(cpio_newc({"init": b"#!/bin/sh"}), mtime=0),
+                                  **boot_args))
     place("sparse", android_sparse(b"A" * 4096 + b"\0" * 8192 + b"B" * 4096))
-    place("vbmeta", vbmeta())
+    if signed:
+        place("vbmeta", vbmeta())
     blob += b"\xff" * 4096
     path.write_bytes(bytes(blob))
     return parts

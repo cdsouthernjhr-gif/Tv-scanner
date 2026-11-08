@@ -1,6 +1,6 @@
 # TV Intelligence Scanner — Technical Architecture
 
-Version 0.6 (Phases 1–6 implemented). This document is the reference for all later phases.
+Version 0.7 (Phases 1–7 implemented). This document is the reference for all later phases.
 
 ## 1. Goals and non-negotiable principles
 
@@ -119,10 +119,13 @@ See `app/modules/firmware_finder/README.md` for verdict rules and access policy.
 * Migration `0006`: `software_facts`, `device_sessions`, extended `service_menus`, `service_actions`.
 See `app/modules/software_analyzer/README.md`.
 
-### Phase 7 — Compatibility & Upgrade Manager
-* `CompatibilityAnalyzer.evaluate(project, firmware) -> Verdict(reasons[])`: each criterion (SoC, board, PCB rev, panel, RAM, flash, partition layout, bootloader, signature) → `match/mismatch/unknown` with evidence; any hard mismatch ⇒ `INCOMPATIBLE`; critical unknowns ⇒ `INSUFFICIENT EVIDENCE`.
-* Upgrade adapters (`plugins/upgrade/*`) implement `UpgradeMethod` (`supports(profile)`, `preflight()`, `prepare()`, `execute(progress_cb)`, `verify()`). The first adapter is *Official USB Upgrade* which only **prepares** a USB stick (copies the validated vendor package to the documented path, checks FAT32/capacity) — the TV performs the flash itself. Methods without a verified profile are refused; UART/recovery produce technician reports only.
-* Every step writes to `firmware_upgrade_sessions.log` and `audit_log`.
+### Phase 7 — Compatibility & Upgrade (implemented)
+* `modules/compatibility/analyzer.py` — criteria with evidence and hard/soft mismatches; baseline = TV's own analysed Original firmware.
+* `modules/upgrade_manager/adapters.py` — method plugin registry; only `OfficialUsbUpgrade` executes (USB preparation + verification).
+* `modules/upgrade_manager/service.py` — documented/verified profiles, 8-step session state machine, audit.
+* `modules/reports/upgrade_report.py` — Compatibility Report, Upgrade Report.
+* Migration `0007`: profile documentation/USB/recovery fields, session step data, compatibility criteria.
+See `app/modules/upgrade_manager/README.md`.
 
 ### Reports (Phase 1 → 8)
 `PdfReportGenerator` (Phase 1: TV Identification). Later: hardware, firmware, OS, service
