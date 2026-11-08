@@ -1,0 +1,38 @@
+<!doctype html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Firmware Compatibility Report</title><style>
+:root{--bg:#fff;--fg:#1b1f24;--muted:#5b6573;--line:#d8dee6;--head:#1f3a5f;--note:#7a5a00}
+@media (prefers-color-scheme: dark){:root{--bg:#14181f;--fg:#e6e9ef;--muted:#9aa6b8;--line:#2c3647;--head:#2b5797;--note:#f0d48a}}
+body{background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,Segoe UI,sans-serif;margin:0 auto;max-width:1200px;padding:24px 16px}
+h1{margin:0 0 4px}h2{margin-top:28px;border-bottom:2px solid var(--line);padding-bottom:4px}
+.meta,.note{color:var(--muted)}.note{color:var(--note);font-size:13px}
+.wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}
+th{background:var(--head);color:#fff;text-align:left}th,td{border:1px solid var(--line);padding:4px 6px;vertical-align:top}
+td{word-break:break-word}pre{white-space:pre-wrap;background:rgba(127,127,127,.08);padding:8px;border-radius:6px}
+figure{display:inline-block;margin:8px;max-width:420px}figure img{max-width:100%;border:1px solid var(--line)}
+figcaption{font-size:12px;color:var(--muted)}</style></head><body>
+<h1>Firmware Compatibility Report</h1><div class='meta'>compatibility #1 · generated 2026-11-08 22:07:06 UTC · TV Intelligence Scanner 1.0.0</div>
+<h2>Result</h2>
+<div class='wrap'><table><tr><th>Verdict</th><td>VERIFIED COMPATIBLE</td></tr><tr><th>Score</th><td>70</td></tr><tr><th>Candidate firmware</th><td>2</td></tr><tr><th>Baseline firmware</th><td>1</td></tr><tr><th>Time</th><td>2026-11-08T22:07:06Z</td></tr></table></div>
+<h2>Reasons</h2>
+<pre>model, architecture, board/SoC and layout confirmed against the TV&#x27;s own firmware; no concerns</pre>
+<h2>Criteria</h2>
+<div class='wrap'><table><tr><th>Criterion</th><th>TV</th><th>Firmware</th><th>Status</th><th>Hard</th><th>Evidence</th></tr>
+<tr><td>model</td><td>TESTTV55</td><td>TESTTV55</td><td>match</td><td></td><td>build properties of the firmware</td></tr>
+<tr><td>mainboard</td><td>TP.MS338.PB801</td><td>mentioned</td><td>match</td><td></td><td>firmware string 0x00040e04</td></tr>
+<tr><td>soc</td><td>MSD6A648</td><td></td><td>unknown</td><td></td><td>SoC not named in firmware</td></tr>
+<tr><td>architecture</td><td>ARM (32-bit)</td><td>ARM (32-bit)</td><td>match</td><td></td><td>baseline and candidate analysis</td></tr>
+<tr><td>ram</td><td>1024 MB</td><td></td><td>unknown</td><td></td><td>firmware states no memory requirement</td></tr>
+<tr><td>flash</td><td>8 MB</td><td></td><td>unknown</td><td></td><td>candidate is not a full flash image with a partition table</td></tr>
+<tr><td>panel</td><td>LC550EGE</td><td>3 panel configuration file(s)</td><td>match</td><td></td><td>extracted file 0x00030000_gzip/cpio_contents/vendor/config/panel/panel_lc550ege.ini</td></tr>
+<tr><td>bootloader</td><td>U-Boot 2015.04-tv</td><td>U-Boot 2015.04-tv</td><td>match</td><td></td><td>same bootloader</td></tr>
+<tr><td>display_drivers</td><td></td><td></td><td>unknown</td><td></td><td>loadable modules not available on both sides (drivers may be built into the kernel)</td></tr>
+<tr><td>audio_drivers</td><td></td><td></td><td>unknown</td><td></td><td>loadable modules not available on both sides (drivers may be built into the kernel)</td></tr>
+<tr><td>wifi_drivers</td><td></td><td></td><td>unknown</td><td></td><td>loadable modules not available on both sides (drivers may be built into the kernel)</td></tr>
+<tr><td>partition_layout</td><td></td><td></td><td>unknown</td><td></td><td>no partition table in either image</td></tr>
+<tr><td>signing</td><td>Android Verified Boot, SHA256_RSA2048</td><td>Android Verified Boot, SHA256_RSA2048</td><td>match</td><td></td><td>same signing scheme (keys are not verified by this application)</td></tr>
+<tr><td>hardware_configuration</td><td>3 confirmed component(s)</td><td></td><td>unknown</td><td></td><td>no component part numbers named in firmware (normal for most packages)</td></tr>
+<tr><td>integrity</td><td></td><td>verified</td><td>match</td><td></td><td>library copy intact; download hash matched the value published by the source</td></tr>
+<tr><td>source</td><td></td><td>Official (https://github.com/acme-sample/testtv55-fw/releases/download/V2.0/upgrade_tv_v2.bin)</td><td>match</td><td></td><td>official package</td></tr>
+</table></div>
+</body></html>

@@ -3,19 +3,11 @@
 Universal TV hardware, firmware, software and firmware-upgrade analysis platform
 for Windows 10/11 (64-bit). Offline-first desktop application (Python 3 + PySide6 + SQLite).
 
-> **Status: Phase 7 of 8 complete — every module of the specification is implemented.** Phase 1: core application, database, projects (including
-> unknown TVs), evidence images, immutable firmware library, PDF report. Phase 2: OCR (Tesseract),
-> OpenCV image processing, label/menu field extraction, chip/PCB marking recognition, model catalog.
-> Phase 3: Hardware Analyzer with component reference database, memory part-number decoders,
-> local datasheet library with matching, board summary and Hardware Report (PDF/XLSX/CSV/JSON).
-> Phase 4: Firmware Analyzer — validated deep signature scan (25+ formats), entropy/encryption
-> indicators, strings, metadata with provenance, safe extraction, comparison, hex viewer, Binwalk and
-> Ghidra integration, Firmware Analysis Report. Phase 5: Universal Firmware Finder — GitHub, GitLab,
-> open-source BSP, Internet Archive, SourceForge, official/community/documentation sites via web-search
-> APIs; evidence-based matching; verified downloads. Phase 6: Software & OS Analyzer (firmware, System
-> Information OCR, operator entries, authorised read-only UPnP/ADB) and a documented-only Factory & Service
-> Menu database with a safe change workflow. Phase 7: evidence-based Compatibility Analyzer and a Firmware
-> Upgrade Manager that never flashes a TV (only documented Official USB preparation can execute).
+> **Status: version 1.0.0 — all 8 phases complete.** Every module of the specification is implemented and tested
+> (identification & OCR, visual scanner, hardware, firmware analysis, firmware finder, firmware library, software/OS,
+> factory & service menu, compatibility, upgrade manager, reports). Final results:
+> [docs/ACCEPTANCE_TEST_REPORT.md](docs/ACCEPTANCE_TEST_REPORT.md). Sample reports: [docs/samples](docs/samples/README.md).
+> User guide (Bahasa Melayu): [docs/USER_GUIDE.md](docs/USER_GUIDE.md).
 
 ## Quick start (Windows)
 
@@ -28,7 +20,7 @@ python main.py
 OCR additionally needs the Tesseract binary (UB-Mannheim Windows build, auto-detected).
 Full instructions, EXE build and optional tools: [docs/INSTALL_WINDOWS.md](docs/INSTALL_WINDOWS.md).
 
-## What works now (Phases 1–7)
+## Modules
 
 | Module | Function |
 |---|---|
@@ -44,7 +36,7 @@ Full instructions, EXE build and optional tools: [docs/INSTALL_WINDOWS.md](docs/
 | Compatibility Analyzer | 17 criteria (model, mainboard, PCB rev., SoC, architecture, RAM, flash, panel, bootloader, display/audio/Wi-Fi drivers, partition layout, signing, hardware configuration, integrity, source) against the TV's identification, hardware, software and its own baseline firmware; VERIFIED COMPATIBLE / LIKELY / POSSIBLE / INCOMPATIBLE / INSUFFICIENT EVIDENCE with evidence per criterion; history; PDF report |
 | Firmware Upgrade Manager | Documented, operator-verified profiles; 6 method plugins of which only Official USB executes (prepares and verifies the USB stick; the TV's own updater installs); 8-step session (identification, compatibility, validation, backup, preparation with typed confirmation, execution, verification, recovery) with audit log and Upgrade Report PDF/JSON |
 | Firmware Library | Import BIN/IMG/ROM/PKG/ZIP/TAR/TGZ/GZ…; SHA-256; duplicate prevention; `Manufacturer/Model/{Original,Official,Community,Analyzed,Reports}` layout; read-only originals; integrity re-check; filter by mainboard; magic-byte format detection; provenance |
-| Reports | TV Identification Report (PDF) with evidence, OCR results, candidates, markings, hardware, firmware and audit trail; Hardware Report (PDF, XLSX, CSV, JSON) |
+| Reports | Report Center: TV Identification, Hardware, Motherboard, Chipset, Firmware Analysis, Operating System, Service Menu, Firmware Search, Compatibility and Upgrade reports — each in PDF, XLSX, CSV, JSON and HTML (evidence images embedded) |
 | Settings | Paths, schema version, OCR engines + languages, detection of 7-Zip / Binwalk / Ghidra / HxD / Tesseract / WSL2 |
 
 ## Roadmap
@@ -57,9 +49,9 @@ Full instructions, EXE build and optional tools: [docs/INSTALL_WINDOWS.md](docs/
 | 5 ✅ | Universal Firmware Finder: providers, matching, verified downloads, history, reports |
 | 6 ✅ | Software/OS analyzer, documented service-menu database, safe service-action workflow |
 | 7 ✅ | Compatibility analyzer, upgrade profiles/adapters, backup, verification, recovery guidance |
-| 8 | Full testing, installer, EXE, documentation, sample reports |
+| 8 ✅ | Report Center (all formats), Windows CI, EXE + Inno Setup installer, user guide, sample reports, acceptance test |
 
-Design details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Test results: [Phase 1](docs/TEST_REPORT_PHASE1.md), [Phase 2](docs/TEST_REPORT_PHASE2.md), [Phase 3](docs/TEST_REPORT_PHASE3.md), [Phase 4](docs/TEST_REPORT_PHASE4.md), [Phase 5](docs/TEST_REPORT_PHASE5.md), [Phase 6](docs/TEST_REPORT_PHASE6.md), [Phase 7](docs/TEST_REPORT_PHASE7.md).
+Design details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Test results: [Phase 1](docs/TEST_REPORT_PHASE1.md), [Phase 2](docs/TEST_REPORT_PHASE2.md), [Phase 3](docs/TEST_REPORT_PHASE3.md), [Phase 4](docs/TEST_REPORT_PHASE4.md), [Phase 5](docs/TEST_REPORT_PHASE5.md), [Phase 6](docs/TEST_REPORT_PHASE6.md), [Phase 7](docs/TEST_REPORT_PHASE7.md), [Acceptance (final)](docs/ACCEPTANCE_TEST_REPORT.md). Changes: [CHANGELOG.md](CHANGELOG.md).
 Module docs: [Visual Scanner / OCR](app/modules/visual_scanner/README.md), [Hardware Analyzer](app/modules/hardware_analyzer/README.md), [Firmware Analyzer](app/modules/firmware_analyzer/README.md), [Binwalk](app/integrations/binwalk/README.md), [Ghidra](app/integrations/ghidra/README.md), [Firmware Finder](app/modules/firmware_finder/README.md), [Software & Service Menu](app/modules/software_analyzer/README.md), [Compatibility & Upgrade](app/modules/upgrade_manager/README.md).
 
 ## Safety policy (summary)

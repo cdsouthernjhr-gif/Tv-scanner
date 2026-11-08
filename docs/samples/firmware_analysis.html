@@ -1,0 +1,104 @@
+<!doctype html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Firmware Analysis Report</title><style>
+:root{--bg:#fff;--fg:#1b1f24;--muted:#5b6573;--line:#d8dee6;--head:#1f3a5f;--note:#7a5a00}
+@media (prefers-color-scheme: dark){:root{--bg:#14181f;--fg:#e6e9ef;--muted:#9aa6b8;--line:#2c3647;--head:#2b5797;--note:#f0d48a}}
+body{background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,Segoe UI,sans-serif;margin:0 auto;max-width:1200px;padding:24px 16px}
+h1{margin:0 0 4px}h2{margin-top:28px;border-bottom:2px solid var(--line);padding-bottom:4px}
+.meta,.note{color:var(--muted)}.note{color:var(--note);font-size:13px}
+.wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}
+th{background:var(--head);color:#fff;text-align:left}th,td{border:1px solid var(--line);padding:4px 6px;vertical-align:top}
+td{word-break:break-word}pre{white-space:pre-wrap;background:rgba(127,127,127,.08);padding:8px;border-radius:6px}
+figure{display:inline-block;margin:8px;max-width:420px}figure img{max-width:100%;border:1px solid var(--line)}
+figcaption{font-size:12px;color:var(--muted)}</style></head><body>
+<h1>Firmware Analysis Report</h1><div class='meta'>firmware #1 · generated 2026-11-08 22:07:06 UTC · TV Intelligence Scanner 1.0.0</div>
+<h2>File and integrity</h2>
+<div class='wrap'><table><tr><th>File</th><td>orig_dump.bin</td></tr><tr><th>Size</th><td>726,912 B</td></tr><tr><th>SHA-256</th><td>cce88a2118fc3fd1edd6b3fbd0cd38030335a5f964dd75e8d27ea476bf1089c7</td></tr><tr><th>Category</th><td>Original</td></tr><tr><th>Analysis run</th><td>#1 completed 2026-11-08T22:07:05Z</td></tr><tr><th>Original unchanged</th><td>YES (SHA-256 identical before/after)</td></tr></table></div>
+<h2>Metadata</h2>
+<div class='wrap'><table><tr><th>Attribute</th><th>Value</th><th>Source</th><th>Confidence</th></tr>
+<tr><td>android_version</td><td>9</td><td>4 sources: extracted file 0x00030000_gzip/cpio_contents/system/build.prop; extracted file 0x00050000_zip/system/build.prop; extracted file 0x00040000_tar/system/build.prop; …</td><td>97%</td></tr>
+<tr><td>board_platform</td><td>m7642</td><td>4 sources: property string @0x40635; extracted file 0x00030000_gzip/cpio_contents/system/build.prop; extracted file 0x00050000_zip/system/build.prop; …</td><td>97%</td></tr>
+<tr><td>bootloader</td><td>U-Boot 2015.04-tv</td><td>string @0x14ee0</td><td>85%</td></tr>
+<tr><td>build_date</td><td>Mon Mar 2 10:11:12 CST 2020</td><td>string @0x14ec4</td><td>60%</td></tr>
+<tr><td>compression</td><td>bzip2, gzip, xz</td><td>validated signatures / headers</td><td>90%</td></tr>
+<tr><td>cpu_architecture</td><td>ARM (32-bit)</td><td>2 sources: uImage header @0x10000 (CRC-verified); ELF headers (1 of 1 binaries)</td><td>97%</td></tr>
+<tr><td>encryption_indicator</td><td>none — high-entropy regions are explained by recognised formats</td><td>entropy analysis</td><td>60%</td></tr>
+<tr><td>endianness</td><td>little</td><td>ELF headers (1 binaries)</td><td>85%</td></tr>
+<tr><td>filesystems</td><td>android_sparse</td><td>validated signatures</td><td>90%</td></tr>
+<tr><td>kernel_cmdline</td><td>console=ttyS0 androidboot.hardware=tv</td><td>Android boot header @0x90000</td><td>90%</td></tr>
+<tr><td>kernel_version</td><td>4.9.118</td><td>2 sources: string @0x14e75: Linux version 4.9.118 (builder@tv) (gcc version 6.3.1 (Linar; uImage name &#x27;Linux-4.9.118&#x27; @0x10000</td><td>96%</td></tr>
+<tr><td>os_family</td><td>Android</td><td>5 sources: extracted file 0x00030000_gzip/cpio_contents/system/build.prop; extracted file 0x00050000_zip/system/build.prop; extracted file 0x00040000_tar/system/build.prop; …</td><td>97%</td></tr>
+<tr><td>os_family</td><td>Linux</td><td>kernel version string</td><td>85%</td></tr>
+<tr><td>os_name</td><td>Linux</td><td>3 sources: extracted file 0x00030000_gzip/cpio_contents/etc/os-release; extracted file 0x00050000_zip/etc/os-release; extracted file 0x00040000_tar/etc/os-release</td><td>97%</td></tr>
+<tr><td>os_version_id</td><td>4.9</td><td>3 sources: extracted file 0x00030000_gzip/cpio_contents/etc/os-release; extracted file 0x00050000_zip/etc/os-release; extracted file 0x00040000_tar/etc/os-release</td><td>97%</td></tr>
+<tr><td>partition_info</td><td>androidboot.hardware=tv</td><td>string @0x9004e</td><td>70%</td></tr>
+<tr><td>product_model</td><td>TESTTV55</td><td>4 sources: property string @0x4061b; extracted file 0x00030000_gzip/cpio_contents/system/build.prop; extracted file 0x00050000_zip/system/build.prop; …</td><td>97%</td></tr>
+<tr><td>signing</td><td>Android Verified Boot, SHA256_RSA2048</td><td>vbmeta @0xb0000</td><td>90%</td></tr>
+<tr><td>word_size</td><td>32-bit</td><td>ELF headers (1 binaries)</td><td>80%</td></tr>
+</table></div>
+<h2>Components</h2>
+<div class='wrap'><table><tr><th>Offset</th><th>Size</th><th>Type</th><th>Category</th><th>Validated</th><th>Source</th><th>Description</th></tr>
+<tr><td>0x10000</td><td>40237</td><td>uimage</td><td>kernel</td><td>yes</td><td>native</td><td>U-Boot uImage &#x27;Linux-4.9.118&#x27;: Linux kernel, ARM, compression gzip, data CRC OK</td></tr>
+<tr><td>0x10040</td><td>40173</td><td>gzip</td><td>compressed</td><td>yes</td><td>native</td><td>gzip stream: 40,173 B -&gt; 40,140 B</td></tr>
+<tr><td>0x20000</td><td>72</td><td>dtb</td><td>devicetree</td><td>yes</td><td>native</td><td>Device tree blob (DTB), 72 B, version 17</td></tr>
+<tr><td>0x30000</td><td>380</td><td>gzip</td><td>compressed</td><td>yes</td><td>native</td><td>gzip stream: 380 B -&gt; 1,112 B</td></tr>
+<tr><td>0x40000</td><td>6144</td><td>tar</td><td>archive</td><td>yes</td><td>native</td><td>POSIX tar archive, 5 entries</td></tr>
+<tr><td>0x50000</td><td>778</td><td>zip</td><td>archive</td><td>yes</td><td>native</td><td>ZIP archive, 5 entries (first: etc/os-release)</td></tr>
+<tr><td>0x60000</td><td>140</td><td>xz</td><td>compressed</td><td>yes</td><td>native</td><td>xz stream: 140 B -&gt; 24,000 B</td></tr>
+<tr><td>0x70000</td><td>71</td><td>bzip2</td><td>compressed</td><td>yes</td><td>native</td><td>bzip2 stream: 71 B -&gt; 30,000 B</td></tr>
+<tr><td>0x80000</td><td>84</td><td>elf</td><td>executable</td><td>yes</td><td>native</td><td>ELF 32-bit little-endian ARM executable</td></tr>
+<tr><td>0x90000</td><td>10240</td><td>android_boot</td><td>kernel</td><td>yes</td><td>native</td><td>Android boot image v0: kernel 5000 B, ramdisk 90 B</td></tr>
+<tr><td>0x92000</td><td>90</td><td>gzip</td><td>compressed</td><td>yes</td><td>native</td><td>gzip stream: 90 B -&gt; 252 B</td></tr>
+<tr><td>0xa0000</td><td>8256</td><td>android_sparse</td><td>filesystem</td><td>yes</td><td>native</td><td>Android sparse image: 4 blocks of 4096 B (16,384 B expanded), 3 chunks</td></tr>
+<tr><td>0xb0000</td><td>1920</td><td>vbmeta</td><td>signature</td><td>yes</td><td>native</td><td>Android Verified Boot metadata (vbmeta) v1.0, algorithm SHA256_RSA2048</td></tr>
+</table></div>
+<h2>Entropy / encryption indicators</h2>
+<pre>none
+Overall entropy 1.1147 bits/byte, chi-square 150266759.0</pre>
+<h2>Extraction</h2>
+<div class='wrap'><table><tr><th>Offset</th><th>Type</th><th>Status</th><th>Method</th><th>Files</th><th>Note</th></tr>
+<tr><td>0x10000</td><td>uimage</td><td>extracted</td><td>uImage payload</td><td>2</td><td></td></tr>
+<tr><td>0x30000</td><td>gzip</td><td>extracted</td><td>cpio (native)</td><td>6</td><td></td></tr>
+<tr><td>0x40000</td><td>tar</td><td>extracted</td><td>tarfile</td><td>5</td><td></td></tr>
+<tr><td>0x50000</td><td>zip</td><td>extracted</td><td>zipfile</td><td>5</td><td></td></tr>
+<tr><td>0x60000</td><td>xz</td><td>extracted</td><td>xz (native)</td><td>1</td><td></td></tr>
+<tr><td>0x70000</td><td>bzip2</td><td>extracted</td><td>bzip2 (native)</td><td>1</td><td></td></tr>
+<tr><td>0x92000</td><td>gzip</td><td>extracted</td><td>cpio (native)</td><td>2</td><td></td></tr>
+<tr><td>0xa0000</td><td>android_sparse</td><td>extracted</td><td>android sparse (native)</td><td>1</td><td></td></tr>
+</table></div>
+<h2>Extracted files</h2>
+<div class='wrap'><table><tr><th>Path</th><th>Size</th><th>Kind</th><th>SHA-256</th></tr>
+<tr><td>0x00010000_uimage.bin</td><td>40237</td><td>file</td><td>968422ee5a1ca9158dccbc74069420492636e8d242d224e3327c5de77b26b366</td></tr>
+<tr><td>0x00010000_uimage/payload.bin</td><td>40173</td><td>file</td><td>1e395e492ba85a76d79feb7aa097e002c8a3831996fc987061a61e7efc073437</td></tr>
+<tr><td>0x00010000_uimage/payload.decompressed</td><td>40140</td><td>file</td><td>03408a1a7d82bda320dd6edb724840a354b9b39009a91d68709d3ca098a408ef</td></tr>
+<tr><td>0x00030000_gzip.bin</td><td>380</td><td>file</td><td>f76cccc6a1dcbf80f33df42539a3391531486ad79f5ca222d5b89f7ee3344206</td></tr>
+<tr><td>0x00030000_gzip/cpio_contents/etc/app.conf</td><td>24</td><td>config</td><td>995a43c6946329de2a08a637a35b057a0ba0420232fc1bf56d3c85e0e66b58a3</td></tr>
+<tr><td>0x00030000_gzip/cpio_contents/etc/os-release</td><td>30</td><td>config</td><td>1ff55bd8453be3db6ba2e3f2fcd57fb8f4734822457c35e1c9a06b957b083a32</td></tr>
+<tr><td>0x00030000_gzip/cpio_contents/etc/shadow</td><td>22</td><td>sensitive</td><td>5dffe858d3df0b14106a1bae99da509d4820468fcbb134044627fced7c2534e7</td></tr>
+<tr><td>0x00030000_gzip/cpio_contents/system/build.prop</td><td>77</td><td>config</td><td>363e90876e08e83302d624c46677707f727c867e10ae280567c09b0ea6022f3a</td></tr>
+<tr><td>0x00030000_gzip/cpio_contents/vendor/config/panel/panel_lc550ege.ini</td><td>42</td><td>config</td><td>fe40bee7aa0aefaaf17e8307f9eb07f5485225ca0ffa8f1b4284cf44523c37f9</td></tr>
+<tr><td>0x00030000_gzip/decompressed.bin</td><td>1112</td><td>file</td><td>6e580ebf6251d83aac14aee8fb5b35189d4977672ead3353d4c78c4cecbb7e72</td></tr>
+<tr><td>0x00040000_tar.bin</td><td>6144</td><td>file</td><td>6512f29f5490903092407f8db610c3dd923a0fd781867b97959c4f5a26904e5a</td></tr>
+<tr><td>0x00040000_tar/etc/app.conf</td><td>24</td><td>config</td><td>995a43c6946329de2a08a637a35b057a0ba0420232fc1bf56d3c85e0e66b58a3</td></tr>
+<tr><td>0x00040000_tar/etc/os-release</td><td>30</td><td>config</td><td>1ff55bd8453be3db6ba2e3f2fcd57fb8f4734822457c35e1c9a06b957b083a32</td></tr>
+<tr><td>0x00040000_tar/etc/shadow</td><td>22</td><td>sensitive</td><td>5dffe858d3df0b14106a1bae99da509d4820468fcbb134044627fced7c2534e7</td></tr>
+<tr><td>0x00040000_tar/system/build.prop</td><td>77</td><td>config</td><td>363e90876e08e83302d624c46677707f727c867e10ae280567c09b0ea6022f3a</td></tr>
+<tr><td>0x00040000_tar/vendor/config/panel/panel_lc550ege.ini</td><td>42</td><td>config</td><td>fe40bee7aa0aefaaf17e8307f9eb07f5485225ca0ffa8f1b4284cf44523c37f9</td></tr>
+<tr><td>0x00050000_zip.bin</td><td>778</td><td>file</td><td>c80af41c82922f578b45c3a3e2f0bd691f64e32c0032617b7f01f95feee51c20</td></tr>
+<tr><td>0x00050000_zip/etc/app.conf</td><td>24</td><td>config</td><td>995a43c6946329de2a08a637a35b057a0ba0420232fc1bf56d3c85e0e66b58a3</td></tr>
+<tr><td>0x00050000_zip/etc/os-release</td><td>30</td><td>config</td><td>1ff55bd8453be3db6ba2e3f2fcd57fb8f4734822457c35e1c9a06b957b083a32</td></tr>
+<tr><td>0x00050000_zip/etc/shadow</td><td>22</td><td>sensitive</td><td>5dffe858d3df0b14106a1bae99da509d4820468fcbb134044627fced7c2534e7</td></tr>
+<tr><td>0x00050000_zip/system/build.prop</td><td>77</td><td>config</td><td>363e90876e08e83302d624c46677707f727c867e10ae280567c09b0ea6022f3a</td></tr>
+<tr><td>0x00050000_zip/vendor/config/panel/panel_lc550ege.ini</td><td>42</td><td>config</td><td>fe40bee7aa0aefaaf17e8307f9eb07f5485225ca0ffa8f1b4284cf44523c37f9</td></tr>
+<tr><td>0x00060000_xz.bin</td><td>140</td><td>file</td><td>dddade10d888bbfca93ce5a25cc006b7377f3b9e540dc70506887fb03db27c7a</td></tr>
+<tr><td>0x00060000_xz/decompressed.bin</td><td>24000</td><td>file</td><td>a239faa5e4bde9f1f3220441f2189a723a77a5568302a4dc88d89832b0837027</td></tr>
+<tr><td>0x00070000_bzip2.bin</td><td>71</td><td>file</td><td>1f42b5873d9cac3e8c1f7dcc58a6a3023a68a06b2b907de7ee5fc5cdb41c951d</td></tr>
+<tr><td>0x00070000_bzip2/decompressed.bin</td><td>30000</td><td>file</td><td>949fbee05ed34f89096d3d4907a33a0e0ef8ad91e5778c3b5912b43c109350dd</td></tr>
+<tr><td>0x00092000_gzip.bin</td><td>90</td><td>file</td><td>3baf5439e33fa5a939c4c77b10cdf7db3fac9593a14a2e14bda9d0af6bf79283</td></tr>
+<tr><td>0x00092000_gzip/cpio_contents/init</td><td>9</td><td>file</td><td>3af71adb278ad4af33c144b78fa1ae708da03b773d98324ae991a7daedb53ca2</td></tr>
+<tr><td>0x00092000_gzip/decompressed.bin</td><td>252</td><td>file</td><td>9f06d002dec3a119463078eac6300f0ab6ef777235bf72a9251d6b5acdec555a</td></tr>
+<tr><td>0x000a0000_android_sparse.bin</td><td>8256</td><td>file</td><td>369ec38c8d246c2e125fe43701bc44ba36391e9dd2164159ef9aad3a426b01aa</td></tr>
+<tr><td>0x000a0000_android_sparse/unsparsed.img</td><td>16384</td><td>file</td><td>7f89053dbad0a673ed719faa3dcdba6dd0f820639c987e62dd961ef716afb0d3</td></tr>
+<tr><td>bin/sh</td><td>0</td><td>symlink</td><td></td></tr>
+</table></div>
+</body></html>

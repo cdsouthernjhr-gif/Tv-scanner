@@ -1,0 +1,27 @@
+<!doctype html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Hardware Report</title><style>
+:root{--bg:#fff;--fg:#1b1f24;--muted:#5b6573;--line:#d8dee6;--head:#1f3a5f;--note:#7a5a00}
+@media (prefers-color-scheme: dark){:root{--bg:#14181f;--fg:#e6e9ef;--muted:#9aa6b8;--line:#2c3647;--head:#2b5797;--note:#f0d48a}}
+body{background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,Segoe UI,sans-serif;margin:0 auto;max-width:1200px;padding:24px 16px}
+h1{margin:0 0 4px}h2{margin-top:28px;border-bottom:2px solid var(--line);padding-bottom:4px}
+.meta,.note{color:var(--muted)}.note{color:var(--note);font-size:13px}
+.wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}
+th{background:var(--head);color:#fff;text-align:left}th,td{border:1px solid var(--line);padding:4px 6px;vertical-align:top}
+td{word-break:break-word}pre{white-space:pre-wrap;background:rgba(127,127,127,.08);padding:8px;border-radius:6px}
+figure{display:inline-block;margin:8px;max-width:420px}figure img{max-width:100%;border:1px solid var(--line)}
+figcaption{font-size:12px;color:var(--muted)}</style></head><body>
+<h1>Hardware Report</h1><div class='meta'>project #1 · generated 2026-11-08 22:07:06 UTC · TV Intelligence Scanner 1.0.0</div>
+<h2>TV</h2>
+<p class='note'>&#x27;manual&#x27; values are not independently verified.</p>
+<div class='wrap'><table><tr><th>Project</th><td>#1 SAMPLE — Bench TV (synthetic data)</td></tr><tr><th>Manufacturer</th><td>Acme</td></tr><tr><th>Model</th><td>TESTTV55</td></tr><tr><th>Serial number</th><td>not determined</td></tr><tr><th>Product code</th><td>not determined</td></tr><tr><th>Chassis</th><td>CH-9</td></tr><tr><th>Mainboard</th><td>TP.MS338.PB801</td></tr><tr><th>PCB revision</th><td>not determined</td></tr><tr><th>Panel</th><td>LC550EGE</td></tr><tr><th>Screen size (in)</th><td>55.0</td></tr><tr><th>Platform</th><td>not determined</td></tr><tr><th>Firmware version</th><td>V2.0</td></tr><tr><th>Identification status</th><td>identified</td></tr><tr><th>Identification confidence</th><td>74%</td></tr><tr><th>Data source</th><td>mixed</td></tr></table></div>
+<h2>Board summary</h2>
+<p class='note'>Totals only when every chip of the class has capacity evidence.</p>
+<div class='wrap'><table><tr><th>Mainboard</th><td>TP.MS338.PB801</td></tr><tr><th>PCB revision</th><td>not identified</td></tr><tr><th>Board part numbers</th><td></td></tr><tr><th>SoC / CPU</th><td>MStar (now MediaTek) MSD6A648</td></tr><tr><th>GPU</th><td>not identified (no evidence)</td></tr><tr><th>RAM</th><td>RAM: 1 GB total (from decoder + datasheet; confidence 90%)</td></tr><tr><th>Flash</th><td>flash: 8 MB total (from decoder; confidence 80%; confirm with datasheet)</td></tr><tr><th>Wi-Fi</th><td>not identified (no evidence)</td></tr><tr><th>Bluetooth</th><td>not identified (no evidence)</td></tr><tr><th>Wi-Fi / BT module</th><td>not identified (no evidence)</td></tr><tr><th>Audio</th><td>not identified (no evidence)</td></tr><tr><th>T-Con</th><td>not identified (no evidence)</td></tr><tr><th>Power supply</th><td>not identified (no evidence)</td></tr><tr><th>Display panel</th><td>LC550EGE</td></tr></table></div>
+<h2>Components</h2>
+<div class='wrap'><table><tr><th>ID</th><th>Board</th><th>Position</th><th>Category</th><th>Part number</th><th>Manufacturer</th><th>Qty</th><th>Identification</th><th>Confidence</th><th>Specification (source)</th><th>Evidence</th><th>Source reference</th></tr>
+<tr><td>3</td><td>mainboard</td><td>U7</td><td>Flash memory</td><td>W25Q64JVSIQ</td><td>Winbond</td><td>1</td><td>Decoded from vendor part-numbering scheme</td><td>75%</td><td>density_bits=64 Mbit [decoder]; device_family=SPI flash [marking_rule]; manufacturer=Winbond [decoder]; manufacturer=Winbond [marking_rule]; memory_type=SPI NOR flash [decoder]</td><td></td><td>decoder winbond_spi_nor: Winbond SpiFlash naming (W25Q + density in Mbit); marking rule winbond_spi</td></tr>
+<tr><td>2</td><td>mainboard</td><td>U3</td><td>RAM</td><td>K4B4G1646E-BYK0</td><td>Samsung</td><td>2</td><td>Datasheet match (exact part number)</td><td>90%</td><td>data_rate=1600 MT/s [datasheet]; density_bits=4 Gbit [decoder]; density_bits=4 Gbit [datasheet]; device_family=DRAM [marking_rule]; manufacturer=Samsung [decoder]; manufacturer=Samsung [marking_rule]; memory_type=DDR3 SDRAM [decoder]; memory_type=DDR3 [datasheet]; organization=x16 [decoder]; package=96-BALL FBGA [datasheet]; package=FBGA [datasheet]; supply_voltage=1.5 V [datasheet]</td><td></td><td>datasheet #1 p.1; datasheet #1 p.2; decoder samsung_ddr: Samsung DRAM part numbering (K4 + family + density + organisation); decoder samsung_ddr: Samsung DRAM part numbering (K4 + family + density + organisation) (corroborated by datasheet); marking rule samsung_dram</td></tr>
+<tr><td>1</td><td>other</td><td></td><td>SoC / CPU</td><td>MSD6A648</td><td>MStar (now MediaTek)</td><td>1</td><td>Vendor/family from numbering convention only</td><td>66%</td><td>device_family=TV SoC / scaler [marking_rule]; manufacturer=MStar (now MediaTek) [marking_rule]</td><td>2</td><td>marking rule mstar_soc</td></tr>
+</table></div>
+</body></html>

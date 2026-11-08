@@ -1,5 +1,10 @@
 # Installing TV Intelligence Scanner on Windows 10/11 (64-bit)
 
+## Option 0 — installer (recommended)
+Run `TVIntelligenceScanner-Setup-1.0.0.exe` (built by `installer\build_windows.bat` or downloaded from the GitHub
+Actions artifact *tvis-windows-build*). No administrator rights needed; installs per user, adds a Start-menu entry.
+Uninstalling keeps your data in `%LOCALAPPDATA%\TVIntelligenceScanner`.
+
 ## Option A — run from source (recommended during development)
 
 1. Install **Python 3.11–3.13 (64-bit)** from python.org. Tick *“Add python.exe to PATH”*.
@@ -28,7 +33,8 @@
 installer\build_windows.bat
 ```
 The script installs dev dependencies, runs the test suite (build aborts on failure),
-runs PyInstaller and a `--self-check` of the produced executable. Output:
+runs PyInstaller, a `--self-check` and a `--smoke-test` (opens every page) of the produced executable, and builds the
+installer with Inno Setup 6 when it is installed. Output:
 `dist\TVIntelligenceScanner\TVIntelligenceScanner.exe` (copy the whole folder).
 
 ## Running the tests

@@ -1,0 +1,40 @@
+﻿Hardware Report,project #1,2026-11-08 22:07:06 UTC,TV Intelligence Scanner 1.0.0
+
+## TV,'manual' values are not independently verified.
+Project,#1 SAMPLE — Bench TV (synthetic data)
+Manufacturer,Acme
+Model,TESTTV55
+Serial number,not determined
+Product code,not determined
+Chassis,CH-9
+Mainboard,TP.MS338.PB801
+PCB revision,not determined
+Panel,LC550EGE
+Screen size (in),55.0
+Platform,not determined
+Firmware version,V2.0
+Identification status,identified
+Identification confidence,74%
+Data source,mixed
+
+## Board summary,Totals only when every chip of the class has capacity evidence.
+Mainboard,TP.MS338.PB801
+PCB revision,not identified
+Board part numbers,
+SoC / CPU,MStar (now MediaTek) MSD6A648
+GPU,not identified (no evidence)
+RAM,RAM: 1 GB total (from decoder + datasheet; confidence 90%)
+Flash,flash: 8 MB total (from decoder; confidence 80%; confirm with datasheet)
+Wi-Fi,not identified (no evidence)
+Bluetooth,not identified (no evidence)
+Wi-Fi / BT module,not identified (no evidence)
+Audio,not identified (no evidence)
+T-Con,not identified (no evidence)
+Power supply,not identified (no evidence)
+Display panel,LC550EGE
+
+## Components
+ID,Board,Position,Category,Part number,Manufacturer,Qty,Identification,Confidence,Specification (source),Evidence,Source reference
+3,mainboard,U7,Flash memory,W25Q64JVSIQ,Winbond,1,Decoded from vendor part-numbering scheme,75%,density_bits=64 Mbit [decoder]; device_family=SPI flash [marking_rule]; manufacturer=Winbond [decoder]; manufacturer=Winbond [marking_rule]; memory_type=SPI NOR flash [decoder],,decoder winbond_spi_nor: Winbond SpiFlash naming (W25Q + density in Mbit); marking rule winbond_spi
+2,mainboard,U3,RAM,K4B4G1646E-BYK0,Samsung,2,Datasheet match (exact part number),90%,data_rate=1600 MT/s [datasheet]; density_bits=4 Gbit [decoder]; density_bits=4 Gbit [datasheet]; device_family=DRAM [marking_rule]; manufacturer=Samsung [decoder]; manufacturer=Samsung [marking_rule]; memory_type=DDR3 SDRAM [decoder]; memory_type=DDR3 [datasheet]; organization=x16 [decoder]; package=96-BALL FBGA [datasheet]; package=FBGA [datasheet]; supply_voltage=1.5 V [datasheet],,datasheet #1 p.1; datasheet #1 p.2; decoder samsung_ddr: Samsung DRAM part numbering (K4 + family + density + organisation); decoder samsung_ddr: Samsung DRAM part numbering (K4 + family + density + organisation) (corroborated by datasheet); marking rule samsung_dram
+1,other,,SoC / CPU,MSD6A648,MStar (now MediaTek),1,Vendor/family from numbering convention only,66%,device_family=TV SoC / scaler [marking_rule]; manufacturer=MStar (now MediaTek) [marking_rule],2,marking rule mstar_soc

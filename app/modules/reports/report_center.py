@@ -92,7 +92,8 @@ class ReportCenter:
                     ("Firmware version", p.firmware_version), ("Identification status", p.identification_status),
                     ("Identification confidence", f"{p.identification_confidence:.0%}"),
                     ("Data source", p.identification_source)],
-             note="Empty values were not determined; 'manual' values are not independently verified.")
+             note="'manual' values are not independently verified.")
+        d.sections[-1].data = [[k, v if v not in ("", "None") else "not determined"] for k, v in d.sections[-1].data]
         return p
 
     def build(self, rtype: str, subject_id: int) -> ReportDoc:
