@@ -1,0 +1,31 @@
+{
+  "_comment": "Heuristic OS/platform indicators. Each rule names the evidence it needs; a match is an INDICATOR with the given confidence, never proof on its own. 'files' = paths (glob) inside extracted firmware; 'strings' = keywords in firmware strings/metadata; 'props' = Android build property keys; 'packages' = app folder / package names. Evidence from several rules for the same OS is combined.",
+  "rules": [
+    {"os": "Android", "files": ["system/build.prop", "*/system/build.prop", "init.rc", "*/init.rc", "system/framework/framework.jar", "*/system/framework/framework.jar"], "confidence": 0.85,
+     "basis": "Android system image layout (build.prop, init.rc, framework.jar)"},
+    {"os": "Android TV", "requires": "Android", "file_contains": [["*permissions*.xml", "android.software.leanback"]], "confidence": 0.85,
+     "basis": "Android TV devices declare the android.software.leanback feature"},
+    {"os": "Google TV", "requires": "Android", "packages": ["com.google.android.apps.tv.launcherx"], "confidence": 0.7,
+     "basis": "Google TV home launcher package present"},
+    {"os": "Tizen", "files": ["etc/tizen-release", "*/etc/tizen-release"], "confidence": 0.85,
+     "basis": "Tizen release file"},
+    {"os": "Tizen", "strings": ["Tizen"], "confidence": 0.4, "basis": "keyword in firmware strings"},
+    {"os": "webOS", "files": ["usr/palm/*", "*/usr/palm/*"], "confidence": 0.7,
+     "basis": "webOS application tree (/usr/palm)"},
+    {"os": "webOS", "strings": ["webOS"], "confidence": 0.4, "basis": "keyword in firmware strings"},
+    {"os": "VIDAA", "strings": ["VIDAA"], "confidence": 0.4, "basis": "keyword in firmware strings"},
+    {"os": "Roku OS", "strings": ["Roku"], "confidence": 0.3, "basis": "keyword in firmware strings"},
+    {"os": "Linux (generic)", "files": ["etc/os-release", "*/etc/os-release", "bin/busybox", "*/bin/busybox", "etc/inittab", "*/etc/inittab"], "confidence": 0.6,
+     "basis": "generic embedded Linux userland"}
+  ],
+  "driver_classes": {
+    "wifi": ["8188", "8189", "8192", "8723", "8821", "8822", "88x2", "rtl8", "mt76", "mt7601", "mt7662", "mt7668", "bcmdhd", "wlan", "ath9k", "ath10k", "brcmfmac", "aic8800", "ssv6"],
+    "bluetooth": ["btusb", "hci", "bluetooth", "rtk_btusb", "btmtk"],
+    "audio": ["snd", "audio", "alsa", "i2s", "amp", "tas5", "sound"],
+    "display": ["drm", "fb", "panel", "lvds", "vbo", "vby1", "mali", "gpu", "pq", "hdmi", "disp", "tcon"],
+    "network": ["eth", "gmac", "r8152", "asix", "usbnet", "emac"],
+    "tuner_demod": ["tuner", "demod", "dvb", "atsc", "isdb", "frontend"],
+    "usb": ["usb", "ehci", "xhci", "ohci", "dwc"],
+    "storage": ["mmc", "emmc", "nand", "ubi", "spi_nor", "sdhci"]
+  }
+}

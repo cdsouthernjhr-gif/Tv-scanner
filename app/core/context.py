@@ -9,6 +9,8 @@ from app.database.connection import Database
 from app.modules.firmware_analyzer.service import FirmwareAnalyzer
 from app.modules.firmware_finder.engine import FirmwareFinder
 from app.modules.firmware_library.library import FirmwareLibrary
+from app.modules.service_menu.service import ServiceMenuDB
+from app.modules.software_analyzer.service import SoftwareAnalyzer
 from app.modules.hardware_analyzer.datasheets import DatasheetLibrary
 from app.modules.hardware_analyzer.service import HardwareAnalyzer
 from app.modules.identification.catalog import CatalogService
@@ -16,6 +18,7 @@ from app.modules.identification.service import IdentificationService
 from app.modules.reports.firmware_report import FirmwareReportGenerator
 from app.modules.reports.hardware_report import HardwareReportGenerator
 from app.modules.reports.search_report import SearchReportGenerator
+from app.modules.reports.software_report import SoftwareReportGenerator
 from app.modules.reports.pdf_report import PdfReportGenerator
 from app.security.audit import AuditLogger
 from app.security.secrets import SecretStore
@@ -42,6 +45,9 @@ class AppContext:
     secrets: SecretStore
     finder: FirmwareFinder
     search_reports: SearchReportGenerator
+    software: SoftwareAnalyzer
+    service_menus: ServiceMenuDB
+    software_reports: SoftwareReportGenerator
 
     @classmethod
     def create(cls, data_dir: Path | None = None) -> "AppContext":
@@ -62,10 +68,13 @@ class AppContext:
         secrets = SecretStore()
         finder = FirmwareFinder(config, db, audit, library, firmware, secrets)
         search_reports = SearchReportGenerator(config, db, audit, finder)
+        software = SoftwareAnalyzer(db, audit, projects, library, firmware)
+        service_menus = ServiceMenuDB(db, audit, datasheets)
+        software_reports = SoftwareReportGenerator(config, db, audit, projects, software, service_menus)
         audit.record("app.start", details_dir=str(config.data_dir))
         return cls(config, db, audit, projects, evidence, library, reports, catalog, identification,
                    datasheets, hardware, hardware_reports, firmware, firmware_reports, secrets, finder,
-                   search_reports)
+                   search_reports, software, service_menus, software_reports)
 
     def close(self) -> None:
         self.db.close()

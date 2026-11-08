@@ -13,7 +13,7 @@ def test_main_window_navigation(qtbot, ctx):
         w.sidebar.setCurrentRow(i)
         assert w.stack.currentIndex() == i
     planned = [n for n, p in w.pages.items() if isinstance(p, PlannedModulePage)]
-    assert "Software Analyzer" in planned and "Universal Firmware Finder" not in planned
+    assert "Compatibility Analyzer" in planned and "Software Analyzer" not in planned
     assert "Dashboard" not in planned
 
 
@@ -294,3 +294,55 @@ def test_settings_api_keys_never_plaintext(qtbot, ctx):
     txt = ctx.config.settings_path.read_text()
     assert "searx.example.org" in txt and "ghp_" not in txt
     assert ctx.config.get("network.offline_mode") is False
+
+
+# ---- Phase 6 UI ---------------------------------------------------------------------
+def test_software_page(qtbot, ctx, tmp_path):
+    import firmware_builders as fb
+    p = ctx.projects.create(TVProject(name="SW", manufacturer="Acme", model_number="TESTTV55"))
+    f = tmp_path / "fw.bin"
+    fb.composite(f)
+    ctx.firmware.analyze(ctx.library.import_file(f, project_id=p.id).id, use_binwalk=False)
+    w = MainWindow(ctx)
+    qtbot.addWidget(w)
+    sp = w.pages["Software Analyzer"]
+    assert not isinstance(sp, PlannedModulePage)
+    w.navigate("Software Analyzer")
+    sp.project.select_project(p.id)
+    s = sp.analyze()
+    assert s["os_best"] == "Android" and "OS: Android" in sp.status.text()
+    assert any(sp.summary.item(r, 1).text() == "4.9.118" for r in range(sp.summary.rowCount()))
+    sp.m_cat.setCurrentText("firmware_version")
+    sp.m_name.setText("T-KTM2AKUC-1500.5")
+    sp.m_ref.setText("Settings > Support > About")
+    sp._add_manual()
+    assert any(sp.all_facts.item(r, 3).text() == "operator" for r in range(sp.all_facts.rowCount()))
+
+
+def test_service_menu_page(qtbot, ctx):
+    p = ctx.projects.create(TVProject(name="SM", manufacturer="Acme", model_number="TESTTV55", chassis="CH-9"))
+    w = MainWindow(ctx)
+    qtbot.addWidget(w)
+    sm = w.pages["Factory & Service Menu"]
+    assert not isinstance(sm, PlannedModulePage)
+    w.navigate("Factory & Service Menu")
+    sm.e["manufacturer"].setText("Acme")
+    sm.e["model_pattern"].setText("TESTTV*")
+    sm.e["function_description"].setText("White balance")
+    sm.e_cat.setCurrentText("Service Menu")
+    with pytest.raises(ValueError, match="official_documentation"):
+        sm.add_from_form()                                   # documentation is mandatory
+    sm.e["official_documentation"].setText("Acme CH-9 Service Manual, section 4.2")
+    rid = sm.add_from_form()
+    assert sm.table.rowCount() == 1
+    sm.project.select_project(p.id)
+    sm.load_project()
+    assert sm.applicable.rowCount() == 1
+    sm.applicable.selectRow(0)
+    sm.a_setting.setText("Backlight")
+    sm.a_new.setText("80")
+    sm.a_reason.setText("customer request")
+    sm._plan()
+    assert sm.actions.rowCount() == 1 and sm.actions.item(0, 4).text() == "planned"
+    assert ctx.software_reports.service_report_pdf(p.id).exists()
+    assert rid

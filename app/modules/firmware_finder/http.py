@@ -126,6 +126,7 @@ class HttpClient:
         self.user_agent = config.get("network.user_agent", "TVIntelligenceScanner/0.5")
         self.timeout = float(config.get("network.request_timeout_seconds", 20))
         self.retries = int(config.get("network.retries", 3))
+        self.max_retry_wait = float(config.get("network.max_retry_wait_seconds", 30))
         self.sleep = sleep
         self.limiter = RateLimiter(float(config.get("network.max_requests_per_minute", 30)),
                                    {"api.github.com": 25, "gitlab.com": 60, "archive.org": 30})
@@ -190,7 +191,11 @@ class HttpClient:
             if r.status_code == 429 or 500 <= r.status_code < 600:
                 if attempt < self.retries:
                     ra = r.headers.get("Retry-After")
-                    delay = float(ra) if ra and ra.isdigit() else min(60, 2 ** (attempt + 1))
+                    delay = float(ra) if ra and ra.isdigit() else min(30, 2 ** (attempt + 1))
+                    if delay > self.max_retry_wait:
+                        # never block a search for minutes/hours: report back instead
+                        r.reason = f"rate limited by server; retry after {int(delay)} s"
+                        return r
                     self.sleep(delay)
                     continue
             return r

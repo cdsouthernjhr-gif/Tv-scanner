@@ -14,6 +14,8 @@ from app.ui.pages.identification_page import IdentificationPage
 from app.ui.pages.new_project_page import NewProjectPage
 from app.ui.pages.planned_page import PLANNED, PlannedModulePage
 from app.ui.pages.reports_page import ReportsPage
+from app.ui.pages.service_menu_page import ServiceMenuPage
+from app.ui.pages.software_page import SoftwarePage
 from app.ui.pages.settings_page import SettingsPage
 from app.ui.pages.visual_scanner_page import VisualScannerPage
 from app.ui.widgets import STYLESHEET
@@ -43,6 +45,8 @@ class MainWindow(QMainWindow):
             "Hardware Analyzer": HardwarePage(ctx),
             "Firmware Analyzer": FirmwareAnalyzerPage(ctx),
             "Universal Firmware Finder": FinderPage(ctx),
+            "Software Analyzer": SoftwarePage(ctx),
+            "Factory & Service Menu": ServiceMenuPage(ctx),
         }
         for name, (phase, desc) in PLANNED.items():
             if name not in self.pages:

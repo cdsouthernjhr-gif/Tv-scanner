@@ -72,6 +72,17 @@ def test_retry_honours_retry_after(online):
     assert data == {"ok": 1} and 7.0 in waits
 
 
+def test_long_retry_after_not_blocking(online):
+    ctx, sess = online
+    waits = []
+    ctx.finder.http.sleep = waits.append
+    sess.add("GET", "api.example.org/slow", FakeResponse(429, b"slow down", headers={"Retry-After": "3600"}))
+    r = ctx.finder.http.request("GET", "https://api.example.org/slow")
+    assert r.status_code == 429 and "retry after 3600" in r.reason and waits == []
+    with pytest.raises(Exception, match="retry after 3600"):
+        ctx.finder.http.get_json("https://api.example.org/slow")
+
+
 def test_robots_respected_for_pages(online):
     ctx, sess = online
     sess.add("GET", "forum.example.org/robots.txt", FakeResponse(200, b"User-agent: *\nDisallow: /private/\n"))

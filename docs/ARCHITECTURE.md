@@ -1,6 +1,6 @@
 # TV Intelligence Scanner — Technical Architecture
 
-Version 0.5 (Phases 1–5 implemented). This document is the reference for all later phases.
+Version 0.6 (Phases 1–6 implemented). This document is the reference for all later phases.
 
 ## 1. Goals and non-negotiable principles
 
@@ -112,9 +112,12 @@ See `app/modules/firmware_analyzer/README.md`.
 * Migration `0005`: `search_sessions`, extended `firmware_search_results`, `firmware_downloads`.
 See `app/modules/firmware_finder/README.md` for verdict rules and access policy.
 
-### Phase 6 — Software & Service Menu
-* OS fingerprinting from firmware contents (build.prop, /etc/os-release, Tizen/webOS markers) and user-entered system-info screens (OCR).
-* `service_menus` seeded only from documented sources, each row carrying `official_documentation`. No code paths for password guessing or bypass.
+### Phase 6 — Software & Service Menu (implemented)
+* `modules/software_analyzer/` — `inventory.py` (apps, libraries, drivers, configs, OS fingerprint rules in `resources/data/os_fingerprints.json`), `connectors.py` (UPnP/SSDP LAN discovery, ADB read-only whitelist), `service.py` (facts with provenance, summary, conflicts).
+* `modules/service_menu/service.py` — documented-only service-menu DB, import/export, service-manual passage search, service-action workflow.
+* `modules/reports/software_report.py` — Operating System Report, Service Menu Report.
+* Migration `0006`: `software_facts`, `device_sessions`, extended `service_menus`, `service_actions`.
+See `app/modules/software_analyzer/README.md`.
 
 ### Phase 7 — Compatibility & Upgrade Manager
 * `CompatibilityAnalyzer.evaluate(project, firmware) -> Verdict(reasons[])`: each criterion (SoC, board, PCB rev, panel, RAM, flash, partition layout, bootloader, signature) → `match/mismatch/unknown` with evidence; any hard mismatch ⇒ `INCOMPATIBLE`; critical unknowns ⇒ `INSUFFICIENT EVIDENCE`.

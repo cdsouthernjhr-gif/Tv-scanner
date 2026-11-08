@@ -60,6 +60,12 @@ page or in *Settings*. Optional API keys (stored in Windows Credential Manager, 
 
 Microsoft Defender is used automatically to scan downloaded firmware.
 
+## Device queries (Phase 6, optional)
+* **UPnP discovery** needs no extra software; allow the application through the Windows firewall (private network)
+  so SSDP replies on UDP 1900 can arrive.
+* **ADB** (Android TVs only): install Google *Android SDK Platform-Tools* and put `adb.exe` on PATH. The TV owner must
+  enable developer options / network debugging and accept the authorisation prompt on the TV.
+
 ## Optional external tools
 Detected automatically on the *Settings* page.
 

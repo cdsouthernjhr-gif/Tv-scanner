@@ -25,10 +25,6 @@ class PlannedModulePage(QWidget):
 
 
 PLANNED = {
-    "Software Analyzer": (6, "OS/kernel/build identification from system menus, official diagnostics "
-                             "and firmware contents."),
-    "Factory & Service Menu": (6, "Database of documented, manufacturer-sanctioned service menus. "
-                                  "No brute-force or authentication bypass."),
     "Compatibility Analyzer": (7, "Evidence-based verdicts (VERIFIED COMPATIBLE … INSUFFICIENT EVIDENCE) "
                                   "with reasons for every decision."),
     "Firmware Upgrade Manager": (7, "Per-model upgrade profiles and plugin adapters for official methods "
