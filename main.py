@@ -37,6 +37,11 @@ def main(argv=None) -> int:
         print(f"Firmware lib   : {ctx.config.firmware_library_dir}")
         for t in detect_tools(ctx.config):
             print(f"  {t.label:20} {'OK  ' + t.path if t.available else 'not found'}")
+        engines = ctx.identification.available_engines()
+        print(f"OCR engines    : {', '.join(ctx.identification.engine(e).version() for e in engines) or 'none'}")
+        from app.modules.identification.parsers import _brand_data
+        from app.modules.visual_scanner.markings import load_rules
+        print(f"Rule data      : {len(load_rules())} marking rules, {len(_brand_data()['brands'])} brands")
         ctx.close()
         return 0
 

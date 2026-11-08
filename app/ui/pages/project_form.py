@@ -13,7 +13,7 @@ class ProjectForm(QWidget):
         ("model_number", "Model number"), ("serial_number", "Serial number"),
         ("product_code", "Product code"), ("chassis", "Chassis"),
         ("mainboard", "Mainboard number"), ("pcb_revision", "PCB revision"),
-        ("firmware_version", "Firmware version"),
+        ("firmware_version", "Firmware version"), ("panel_model", "Panel model / ID"),
     ]
 
     def __init__(self):

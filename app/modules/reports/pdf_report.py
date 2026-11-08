@@ -82,6 +82,7 @@ class PdfReportGenerator:
             ("Mainboard", project.mainboard), ("PCB revision", project.pcb_revision),
             ("Screen size (in)", project.screen_size_inches), ("TV type", project.tv_type),
             ("Platform / OS", project.platform), ("Firmware version", project.firmware_version),
+            ("Panel model / ID", project.panel_model),
             ("Identification status", project.identification_status),
             ("Identification confidence", f"{project.identification_confidence:.0%}"),
             ("Data source", project.identification_source),
@@ -90,8 +91,10 @@ class PdfReportGenerator:
         story.append(self._table([[_p(k, small), _p(v if v not in (None, "") else "— not determined —", small)]
                                   for k, v in fields], [55 * mm, 115 * mm], header=False))
         story.append(Spacer(1, 3 * mm))
-        story.append(_p("Note: values with data source 'manual' were entered by the operator and have "
-                        "not been independently verified. Confidence for manual data is capped at 80%. "
+        story.append(_p("Note: 'manual' values were typed by the operator and are not independently verified "
+                        "(they count for 80% of their weight). 'evidence' values were read from the images "
+                        "below by OCR and accepted by the operator; 'mixed' means both. Status 'verified' "
+                        "requires manufacturer and model to be evidence-backed. "
                         "Fields marked 'not determined' had no supporting evidence.", small))
         if project.notes:
             story += [Spacer(1, 3 * mm), _p(f"Notes: {project.notes}", small)]
@@ -133,7 +136,57 @@ class PdfReportGenerator:
         else:
             story.append(_p("No firmware files associated.", small))
 
-        story += [PageBreak(), Paragraph("4. Audit trail", ss["Heading2"])]
+        # ---- Phase 2: OCR evidence, candidates, markings, confirmed hardware ----------
+        story.append(Paragraph("4. OCR & identification evidence", ss["Heading2"]))
+        ocr_rows = self.db.query(
+            "SELECT o.* FROM ocr_results o JOIN scan_evidence e ON e.id=o.evidence_id WHERE e.project_id=?"
+            " AND o.id IN (SELECT MAX(o2.id) FROM ocr_results o2 GROUP BY o2.evidence_id) ORDER BY o.evidence_id",
+            (project_id,))
+        if ocr_rows:
+            rows = [[_p(h, small) for h in ("Evidence", "Engine", "Preset", "Mean conf.", "Text (excerpt)")]]
+            for o in ocr_rows:
+                ev_text = self.db.scalar("SELECT ocr_text FROM scan_evidence WHERE id=?", (o["evidence_id"],))
+                rows.append([_p(f"#{o['evidence_id']}", small), _p(o["engine"], small), _p(o["preset"], small),
+                             _p(f"{o['mean_confidence']:.0%}", small), _p((ev_text or "")[:400], mono)])
+            story.append(self._table(rows, [16 * mm, 28 * mm, 26 * mm, 18 * mm, 82 * mm]))
+        else:
+            story.append(_p("No OCR has been run for this project.", small))
+        cands = self.db.query("SELECT * FROM identification_candidates WHERE project_id=?"
+                              " ORDER BY field, status, confidence DESC", (project_id,))
+        if cands:
+            story += [Spacer(1, 3 * mm), _p("Identification candidates (accepted values are applied to the "
+                                            "project; rejected/pending values are listed for transparency):", small)]
+            rows = [[_p(h, small) for h in ("Field", "Value", "Conf.", "Method", "Evidence", "Status")]]
+            for c in cands:
+                rows.append([_p(c["field"], small), _p(c["value"], mono), _p(f"{c['confidence']:.0%}", small),
+                             _p(c["method"], small), _p(f"#{c['evidence_id']}" if c["evidence_id"] else "catalog", small),
+                             _p(c["status"], small)])
+            story.append(self._table(rows, [30 * mm, 50 * mm, 14 * mm, 34 * mm, 18 * mm, 24 * mm]))
+        marks = self.db.query("SELECT * FROM marking_detections WHERE project_id=? ORDER BY kind, confidence DESC",
+                              (project_id,))
+        story.append(Paragraph("5. Chip & PCB markings", ss["Heading2"]))
+        if marks:
+            rows = [[_p(h, small) for h in ("Kind", "Marking", "Vendor (convention)", "Type", "Conf.", "Status")]]
+            for m in marks:
+                rows.append([_p(m["kind"], small), _p(m["normalized"], mono), _p(m["candidate_vendor"] or "—", small),
+                             _p(m["candidate_type"] or "unrecognised", small), _p(f"{m['confidence']:.0%}", small),
+                             _p(m["status"], small)])
+            story.append(self._table(rows, [14 * mm, 40 * mm, 36 * mm, 46 * mm, 14 * mm, 20 * mm]))
+            story.append(_p("Vendor/type come from part-number numbering conventions and are not a specification. "
+                            "Only 'confirmed' markings were verified by the operator.", small))
+        else:
+            story.append(_p("No markings detected.", small))
+        hw = self.db.query("SELECT * FROM hardware_components WHERE project_id=? ORDER BY id", (project_id,))
+        if hw:
+            story += [Spacer(1, 3 * mm), _p("Confirmed hardware components:", small)]
+            rows = [[_p(h, small) for h in ("Type", "Part number", "Manufacturer", "Evidence", "Source")]]
+            for h in hw:
+                rows.append([_p(h["component_type"], small), _p(h["part_number"], mono), _p(h["manufacturer"], small),
+                             _p(f"#{h['evidence_id']}" if h["evidence_id"] else "", small),
+                             _p(h["source_reference"], small)])
+            story.append(self._table(rows, [36 * mm, 36 * mm, 32 * mm, 16 * mm, 50 * mm]))
+
+        story += [PageBreak(), Paragraph("6. Audit trail", ss["Heading2"])]
         audit_rows = [[_p(h, small) for h in ("Time (UTC)", "Actor", "Action")]]
         for e in reversed(self.audit.entries("tv_project", project_id, limit=50)):
             audit_rows.append([_p(e["ts"], small), _p(e["actor"], small), _p(e["action"], small)])

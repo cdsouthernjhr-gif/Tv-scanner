@@ -9,8 +9,9 @@ a = Analysis(
     datas=[
         (os.path.join(ROOT, "config", "default_config.json"), "config"),
         (os.path.join(ROOT, "app", "database", "migrations"), os.path.join("app", "database", "migrations")),
+        (os.path.join(ROOT, "resources", "data"), os.path.join("resources", "data")),
     ],
-    hiddenimports=["reportlab.graphics.barcode.common", "reportlab.graphics.barcode.code128"],
+    hiddenimports=["pytesseract", "reportlab.graphics.barcode.common", "reportlab.graphics.barcode.code128"],
     excludes=["PySide6.QtWebEngineCore", "PySide6.QtWebEngineWidgets", "PySide6.Qt3DCore"],
 )
 pyz = PYZ(a.pure)

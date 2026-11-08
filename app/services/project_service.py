@@ -16,6 +16,7 @@ _IDENT_WEIGHTS = {
     "manufacturer": 0.25, "model_number": 0.30, "chassis": 0.10, "mainboard": 0.15,
     "product_code": 0.05, "serial_number": 0.05, "screen_size_inches": 0.05, "platform": 0.05,
 }
+MANUAL_FACTOR = 0.8   # manual (unverified) values count for 80 % of their weight
 
 
 @dataclass
@@ -32,6 +33,7 @@ class TVProject:
     tv_type: str | None = None
     platform: str | None = None
     firmware_version: str | None = None
+    panel_model: str | None = None
     notes: str | None = None
     id: int | None = None
     identification_status: str = "unknown"
@@ -48,7 +50,7 @@ class TVProject:
 
 EDITABLE = ["name", "manufacturer", "model_number", "serial_number", "product_code", "chassis",
             "mainboard", "pcb_revision", "screen_size_inches", "tv_type", "platform",
-            "firmware_version", "notes"]
+            "firmware_version", "panel_model", "notes"]
 
 
 def _clean(v: Any) -> Any:
@@ -58,21 +60,48 @@ def _clean(v: Any) -> Any:
     return v
 
 
-def assess_identification(p: TVProject) -> tuple[str, float]:
-    """Status/confidence for *manually entered* data.
+def _norm(v: Any) -> str:
+    if v is None:
+        return ""
+    if isinstance(v, float):
+        return f"{v:g}"
+    return str(v).strip().upper()
 
-    Manual entries are never marked 'verified'; that requires corroborating
-    evidence from later phases (OCR on labels, database match).
+
+def assess_identification(p: TVProject, evidence_values: dict[str, set[str]] | None = None
+                          ) -> tuple[str, float, str]:
+    """Return (status, confidence, source).
+
+    ``evidence_values`` maps field -> values the operator accepted from evidence
+    (OCR of labels/menus). A field counts as evidence-backed only while the
+    project's current value equals an accepted value; otherwise it is manual.
+
+    * manual values count for 80 % of their weight;
+    * 'verified' requires manufacturer AND model to be evidence-backed;
+    * source is 'manual', 'evidence' or 'mixed'.
     """
-    score = sum(w for f, w in _IDENT_WEIGHTS.items() if _clean(getattr(p, f)) not in (None, ""))
-    if p.manufacturer and p.model_number:
+    evidence_values = evidence_values or {}
+    score, backed, manual = 0.0, set(), set()
+    for f, w in _IDENT_WEIGHTS.items():
+        v = _clean(getattr(p, f))
+        if v in (None, ""):
+            continue
+        if _norm(v) in {_norm(x) for x in evidence_values.get(f, set())}:
+            backed.add(f)
+            score += w
+        else:
+            manual.add(f)
+            score += w * MANUAL_FACTOR
+    if {"manufacturer", "model_number"} <= backed:
+        status = "verified"
+    elif p.manufacturer and p.model_number:
         status = "identified"
     elif p.manufacturer or p.model_number or p.mainboard or p.chassis:
         status = "partial"
     else:
         status = "unknown"
-    # Cap manual confidence: user input is unverified.
-    return status, round(min(score, 1.0) * 0.8, 2)
+    source = "evidence" if backed and not manual else "mixed" if backed else "manual"
+    return status, round(min(score, 1.0), 2), source
 
 
 class ProjectService:
@@ -89,7 +118,8 @@ class ProjectService:
             project.screen_size_inches = float(project.screen_size_inches)
             if not 5 <= project.screen_size_inches <= 300:
                 raise ValueError("Screen size must be between 5 and 300 inches")
-        project.identification_status, project.identification_confidence = assess_identification(project)
+        (project.identification_status, project.identification_confidence,
+         project.identification_source) = assess_identification(project)
         cols = EDITABLE + ["identification_status", "identification_confidence", "identification_source"]
         with self.db.transaction() as c:
             cur = c.execute(
@@ -112,14 +142,32 @@ class ProjectService:
             raise ValueError("Project name is required")
         if current.screen_size_inches is not None:
             current.screen_size_inches = float(current.screen_size_inches)
-        current.identification_status, current.identification_confidence = assess_identification(current)
-        cols = EDITABLE + ["identification_status", "identification_confidence"]
+        self._save(current)
+        self.audit.record("project.update", "tv_project", project_id, fields=sorted(changes))
+        return self.get(project_id)
+
+    def evidence_values(self, project_id: int) -> dict[str, set[str]]:
+        rows = self.db.query("SELECT field, value FROM identification_candidates"
+                             " WHERE project_id=? AND status='accepted' AND evidence_id IS NOT NULL",
+                             (project_id,))  # catalog matches are not physical evidence
+        out: dict[str, set[str]] = {}
+        for r in rows:
+            out.setdefault(r["field"], set()).add(r["value"])
+        return out
+
+    def reassess(self, project_id: int) -> TVProject:
+        """Recompute status/confidence after evidence was accepted or rejected."""
+        self._save(self.get(project_id))
+        return self.get(project_id)
+
+    def _save(self, current: TVProject) -> None:
+        (current.identification_status, current.identification_confidence,
+         current.identification_source) = assess_identification(current, self.evidence_values(current.id))
+        cols = EDITABLE + ["identification_status", "identification_confidence", "identification_source"]
         self.db.execute(
             f"UPDATE tv_projects SET {', '.join(f'{c}=?' for c in cols)},"
             " updated_at=strftime('%Y-%m-%dT%H:%M:%SZ','now') WHERE id=?",
-            tuple(getattr(current, c) for c in cols) + (project_id,))
-        self.audit.record("project.update", "tv_project", project_id, fields=sorted(changes))
-        return self.get(project_id)
+            tuple(getattr(current, c) for c in cols) + (current.id,))
 
     def get(self, project_id: int) -> TVProject:
         row = self.db.query_one("SELECT * FROM tv_projects WHERE id=?", (project_id,))

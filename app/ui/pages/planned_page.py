@@ -25,9 +25,6 @@ class PlannedModulePage(QWidget):
 
 
 PLANNED = {
-    "Visual Scanner": (2, "Image cropping/enhancement (OpenCV), OCR of labels and chip markings "
-                          "(Tesseract/PaddleOCR), PCB number recognition with confidence scoring and "
-                          "manual verification."),
     "Hardware Analyzer": (3, "Component database (SoC, RAM, flash, Wi-Fi/BT, audio, T-Con, PSU, panel), "
                              "datasheet matching and hardware reports. Capacities are only reported "
                              "when proven by evidence."),

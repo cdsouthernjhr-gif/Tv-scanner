@@ -37,13 +37,21 @@ pip install -r requirements-dev.txt
 run_tests.bat
 ```
 
+## Tesseract OCR (required for OCR, Phase 2)
+1. Download the 64-bit installer from the UB-Mannheim Tesseract page (github.com/UB-Mannheim/tesseract/wiki).
+2. Install to the default `C:\Program Files\Tesseract-OCR` (auto-detected). For another folder set
+   `"tools": {"tesseract": "D:\\Tools\\Tesseract-OCR\\tesseract.exe"}` in `settings.json`.
+3. Check: `python main.py --self-check` prints `OCR engines : tesseract 5.x`.
+Without Tesseract the app runs normally, but the OCR buttons are disabled.
+
+Optional second engine: `pip install paddleocr paddlepaddle` (large download; auto-detected).
+
 ## Optional external tools
-Not needed for Phase 1; detected automatically on the *Settings* page.
+Detected automatically on the *Settings* page.
 
 | Tool | Used from | Install |
 |---|---|---|
 | 7-Zip | Phase 4 | https://www.7-zip.org (default path is detected) |
-| Tesseract OCR | Phase 2 | UB-Mannheim Windows build; default `C:\Program Files\Tesseract-OCR` |
 | Binwalk | Phase 4 | Via WSL2 (`sudo apt install binwalk`) or binwalk v3 Windows build |
 | Ghidra | Phase 4 | ghidra-sre.org; set `tools.ghidra_headless` to `support\analyzeHeadless.bat` |
 | HxD | Phase 4 | mh-nexus.de |

@@ -12,6 +12,7 @@ from app.ui.pages.new_project_page import NewProjectPage
 from app.ui.pages.planned_page import PLANNED, PlannedModulePage
 from app.ui.pages.reports_page import ReportsPage
 from app.ui.pages.settings_page import SettingsPage
+from app.ui.pages.visual_scanner_page import VisualScannerPage
 from app.ui.widgets import STYLESHEET
 
 SIDEBAR = ["Dashboard", "New TV Project", "TV Identification", "Visual Scanner", "Hardware Analyzer",
@@ -35,9 +36,11 @@ class MainWindow(QMainWindow):
             "Firmware Library": FirmwareLibraryPage(ctx),
             "Reports": ReportsPage(ctx),
             "Settings": SettingsPage(ctx),
+            "Visual Scanner": VisualScannerPage(ctx),
         }
         for name, (phase, desc) in PLANNED.items():
-            self.pages[name] = PlannedModulePage(name, phase, desc)
+            if name not in self.pages:
+                self.pages[name] = PlannedModulePage(name, phase, desc)
 
         self.sidebar = QListWidget()
         self.sidebar.setObjectName("sidebar")

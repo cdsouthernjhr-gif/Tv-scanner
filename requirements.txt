@@ -4,8 +4,12 @@ reportlab>=4.0
 Pillow>=10.0
 openpyxl>=3.1
 
-# Planned for later phases (installed now so the environment is stable)
-# opencv-python>=4.9      # Phase 2 – image processing
-# pytesseract>=0.3.10     # Phase 2 – OCR (requires Tesseract binary)
+# Phase 2 – image processing & OCR (Tesseract binary installed separately, see docs)
+numpy>=1.26
+opencv-python-headless>=4.9
+pytesseract>=0.3.10
+# paddleocr + paddlepaddle  # optional second OCR engine (~1 GB); auto-detected if installed
+
+# Planned for later phases
 # httpx>=0.27             # Phase 5 – firmware search providers
 # keyring>=25             # Phase 5 – secure API key storage (Windows Credential Manager)

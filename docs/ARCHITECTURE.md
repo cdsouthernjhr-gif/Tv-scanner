@@ -1,6 +1,6 @@
 # TV Intelligence Scanner — Technical Architecture
 
-Version 0.1 (Phase 1). This document is the reference for all later phases.
+Version 0.2 (Phases 1–2 implemented). This document is the reference for all later phases.
 
 ## 1. Goals and non-negotiable principles
 
@@ -77,11 +77,16 @@ time, verification_status) → `firmware_analysis` (analyzer, result JSON).
 
 ## 5. Module design for later phases
 
-### Phase 2 — Identification & Visual Scanner
-* `modules/visual_scanner/preprocess.py` (OpenCV: crop, deskew, CLAHE, sharpen).
-* `modules/visual_scanner/ocr.py` with `OcrEngine` interface; `TesseractEngine`, `PaddleOcrEngine` adapters; result = text + per-token confidence + bounding boxes.
-* `modules/identification/parsers.py`: regex/brand rules extracting model, serial, chassis, product code from OCR text; each field returned with the evidence id and confidence.
-* `scan_evidence.ocr_text` stores raw OCR; extracted fields go to the project with `identification_source='ocr'` only after user confirmation.
+### Phase 2 — Identification & Visual Scanner (implemented)
+* `modules/visual_scanner/preprocess.py` — OpenCV pipeline + presets per evidence type; quality report.
+* `modules/visual_scanner/ocr.py` — `OcrEngine` interface; `TesseractEngine`, optional `PaddleOcrEngine`.
+* `modules/visual_scanner/markings.py` — chip/PCB marking rules (`resources/data/marking_rules.json`) with OCR-confusion repair.
+* `modules/identification/parsers.py` — keyed/brand/platform/size extraction (`resources/data/tv_brands.json`).
+* `modules/identification/service.py` — multi-variant OCR, `ocr_results`, `identification_candidates`, `marking_detections`; accept/reject; confirm → `hardware_components`.
+* `modules/identification/catalog.py` — catalog built only from confirmed TVs; OCR-tolerant matching.
+* Migration `0002`: `ocr_results`, `identification_candidates`, `marking_detections`, `scan_evidence.parent_evidence_id/processing_json`, `tv_projects.panel_model`.
+* Identification status: `unknown → partial → identified → verified`; `verified` needs manufacturer + model backed by accepted image evidence. Source: `manual / evidence / mixed`.
+See `app/modules/visual_scanner/README.md` for confidence formulas.
 
 ### Phase 3 — Hardware Analyzer
 * Component DB seeded from curated JSON in `database/seed/` (chipsets, memory_chips, display_panels) with `source_reference` required.

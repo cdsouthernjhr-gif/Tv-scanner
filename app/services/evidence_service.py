@@ -46,6 +46,8 @@ class Evidence:
     description: str | None
     ocr_text: str | None
     created_at: str
+    parent_evidence_id: int | None = None
+    processing_json: str | None = None
 
 
 class EvidenceService:
@@ -101,6 +103,37 @@ class EvidenceService:
              description))
         self.audit.record("evidence.add", "scan_evidence", eid, project_id=project_id,
                           sha256=digest, type=evidence_type)
+        return self.get(eid)
+
+    def add_derived(self, parent_id: int, png_bytes: bytes, processing: list[dict],
+                    width: int, height: int, description: str | None = None) -> Evidence:
+        """Store a processed (cropped/enhanced) copy as new evidence linked to its parent.
+
+        The parent image is never modified. Identical results are deduplicated.
+        """
+        import hashlib
+        import json
+        parent = self.get(parent_id)
+        digest = hashlib.sha256(png_bytes).hexdigest()
+        existing = self.db.query_one("SELECT id FROM scan_evidence WHERE project_id=? AND sha256=?",
+                                     (parent.project_id, digest))
+        if existing:
+            return self.get(existing[0])
+        dest_dir = self.project_evidence_dir(parent.project_id) / "processed"
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        dest = dest_dir / f"{digest}.png"
+        if not dest.exists():
+            dest.write_bytes(png_bytes)
+            make_read_only(dest)
+        eid = self.db.execute(
+            "INSERT INTO scan_evidence(project_id, evidence_type, original_filename, stored_path, sha256,"
+            " file_size, width, height, description, parent_evidence_id, processing_json)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            (parent.project_id, parent.evidence_type, f"processed_from_{parent.id}.png", str(dest),
+             digest, len(png_bytes), width, height,
+             description or f"Processed copy of evidence #{parent.id}", parent.id,
+             json.dumps(processing)))
+        self.audit.record("evidence.derive", "scan_evidence", eid, parent=parent.id, sha256=digest)
         return self.get(eid)
 
     def get(self, evidence_id: int) -> Evidence:

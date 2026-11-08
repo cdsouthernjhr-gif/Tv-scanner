@@ -32,6 +32,9 @@ class SettingsPage(QWidget):
         lay.addWidget(QLabel("External tools (optional; configure paths in settings.json → 'tools')"))
         self.tools = make_table(["Tool", "Status", "Path"])
         lay.addWidget(self.tools, 1)
+        lay.addWidget(QLabel("OCR engines"))
+        self.ocr = make_table(["Engine", "Status", "Languages"])
+        lay.addWidget(self.ocr)
         btn = QPushButton("Re-detect tools")
         btn.clicked.connect(self.refresh)
         lay.addWidget(btn)
@@ -40,5 +43,13 @@ class SettingsPage(QWidget):
         self.refresh()
 
     def refresh(self) -> None:
+        ident = self.ctx.identification
+        ident._engines = None  # re-detect
+        rows = []
+        for name, eng in ident.engines().items():
+            ok = eng.available()
+            langs = ", ".join(eng.languages()) if ok and hasattr(eng, "languages") else ""
+            rows.append([name, eng.version() if ok else "not installed", langs])
+        fill_table(self.ocr, rows)
         fill_table(self.tools, [[t.label, "available" if t.available else "not found", t.path or ""]
                                 for t in detect_tools(self.ctx.config)])

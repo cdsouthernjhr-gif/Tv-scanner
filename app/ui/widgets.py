@@ -119,5 +119,18 @@ class ProjectSelector(QComboBox):
             self.setCurrentIndex(idx)
 
 
+def ndarray_to_pixmap(img):
+    """Convert an OpenCV image (gray or BGR numpy array) to a QPixmap (copied)."""
+    import numpy as np
+    from PySide6.QtGui import QImage, QPixmap
+    a = np.ascontiguousarray(img)
+    if a.ndim == 2:
+        qi = QImage(a.data, a.shape[1], a.shape[0], a.strides[0], QImage.Format_Grayscale8)
+    else:
+        rgb = np.ascontiguousarray(a[:, :, ::-1])
+        qi = QImage(rgb.data, rgb.shape[1], rgb.shape[0], rgb.strides[0], QImage.Format_RGB888)
+    return QPixmap.fromImage(qi.copy())
+
+
 def error_box(parent: QWidget, title: str, exc: Exception | str) -> None:
     QMessageBox.critical(parent, title, str(exc))
