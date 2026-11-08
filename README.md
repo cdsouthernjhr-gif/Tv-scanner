@@ -1,5 +1,7 @@
 # TV Intelligence Scanner
 
+[![Windows build & test](https://github.com/cdsouthernjhr-gif/Tv-scanner/actions/workflows/windows-build.yml/badge.svg?branch=claude/tv-intelligence-scanner-6dj2mq)](https://github.com/cdsouthernjhr-gif/Tv-scanner/actions/workflows/windows-build.yml)
+
 Universal TV hardware, firmware, software and firmware-upgrade analysis platform
 for Windows 10/11 (64-bit). Offline-first desktop application (Python 3 + PySide6 + SQLite).
 

@@ -1,6 +1,6 @@
 # TV Intelligence Scanner — Technical Architecture
 
-Version 0.7 (Phases 1–7 implemented). This document is the reference for all later phases.
+Version 1.0 (all phases implemented). This document is the reference for all later phases.
 
 ## 1. Goals and non-negotiable principles
 
@@ -136,6 +136,11 @@ sharing one report data model.
 Detected at runtime (`services/external_tools.py`) from PATH, known install folders, or
 `settings.json → tools`. Missing tools disable the dependent features with a clear message;
 nothing is downloaded or installed automatically.
+
+## 6b. Release (Phase 8)
+* `modules/reports/report_center.py` — format-neutral `ReportDoc` for all 10 reports; renderers HTML/JSON/CSV/XLSX/PDF.
+* `main.py --smoke-test`, `.github/workflows/windows-build.yml` (tests, EXE, installer, install/uninstall on Windows),
+  `installer/tvis_setup.iss` (Inno Setup), `tools/make_samples.py`.
 
 ## 7. Testing strategy
 * Unit + integration tests per module (`tests/`), headless Qt via `pytest-qt` (`QT_QPA_PLATFORM=offscreen`).
