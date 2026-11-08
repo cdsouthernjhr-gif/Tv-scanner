@@ -12,7 +12,13 @@ from app.core.context import AppContext  # noqa: E402
 
 @pytest.fixture
 def ctx(tmp_path):
+    from keyring.backends import fail
+    from app.security.secrets import SecretStore
     c = AppContext.create(tmp_path / "data")
+    # never touch the developer's real credential store (e.g. Windows Credential Manager) from tests
+    c.secrets = SecretStore(backend=fail.Keyring())
+    c.finder.secrets = c.secrets
+    c.finder._providers = None
     yield c
     c.close()
 

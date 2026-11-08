@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (QHBoxLayout, QListWidget, QMainWindow, QStackedWi
 from app.core.config import APP_NAME, APP_VERSION
 from app.ui.pages.dashboard_page import DashboardPage
 from app.ui.pages.firmware_analyzer_page import FirmwareAnalyzerPage
+from app.ui.pages.finder_page import FinderPage
 from app.ui.pages.firmware_library_page import FirmwareLibraryPage
 from app.ui.pages.hardware_page import HardwarePage
 from app.ui.pages.identification_page import IdentificationPage
@@ -41,6 +42,7 @@ class MainWindow(QMainWindow):
             "Visual Scanner": VisualScannerPage(ctx),
             "Hardware Analyzer": HardwarePage(ctx),
             "Firmware Analyzer": FirmwareAnalyzerPage(ctx),
+            "Universal Firmware Finder": FinderPage(ctx),
         }
         for name, (phase, desc) in PLANNED.items():
             if name not in self.pages:
@@ -72,6 +74,7 @@ class MainWindow(QMainWindow):
         np: NewProjectPage = self.pages["New TV Project"]  # type: ignore[assignment]
         np.open_project.connect(self.open_project)
         self.pages["Firmware Library"].open_firmware.connect(self.open_firmware)
+        self.pages["Universal Firmware Finder"].compare_firmware.connect(self.compare_firmware)
         self.sidebar.setCurrentRow(0)
 
     def navigate(self, name: str) -> None:
@@ -85,6 +88,16 @@ class MainWindow(QMainWindow):
     def open_firmware(self, firmware_id: int) -> None:
         self.navigate("Firmware Analyzer")
         self.pages["Firmware Analyzer"].select_firmware(firmware_id)
+
+    def compare_firmware(self, a: int, b: int) -> None:
+        self.open_firmware(a)
+        fa = self.pages["Firmware Analyzer"]
+        fa.cmp_other.setCurrentIndex(fa.cmp_other.findData(b))
+        fa.tabs.setCurrentIndex(5)
+        try:
+            fa.compare(b)
+        except Exception as exc:  # e.g. not analysed yet: comparison still shows binary similarity
+            fa.cmp_out.setPlainText(str(exc))
 
     def _switch(self, row: int) -> None:
         self.stack.setCurrentIndex(row)

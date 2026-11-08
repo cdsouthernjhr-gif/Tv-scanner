@@ -12,7 +12,7 @@ a = Analysis(
         (os.path.join(ROOT, "resources", "data"), os.path.join("resources", "data")),
         (os.path.join(ROOT, "app", "integrations", "ghidra", "scripts"), os.path.join("app", "integrations", "ghidra", "scripts")),
     ],
-    hiddenimports=["pytesseract", "pypdf", "reportlab.graphics.barcode.common", "reportlab.graphics.barcode.code128"],
+    hiddenimports=["pytesseract", "pypdf", "keyring.backends.Windows", "keyring.backends.fail", "reportlab.graphics.barcode.common", "reportlab.graphics.barcode.code128"],
     # matplotlib/binwalk may be present system-wide (e.g. from a binwalk package) but are not used by the app
     excludes=["PySide6.QtWebEngineCore", "PySide6.QtWebEngineWidgets", "PySide6.Qt3DCore", "matplotlib", "binwalk"],
 )

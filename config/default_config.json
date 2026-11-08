@@ -6,7 +6,8 @@
     "offline_mode": true,
     "request_timeout_seconds": 20,
     "max_requests_per_minute": 30,
-    "user_agent": "TVIntelligenceScanner/0.1 (+offline-first research tool)"
+    "user_agent": "TVIntelligenceScanner/0.5 (+offline-first TV repair research tool)",
+    "retries": 3
   },
   "tools": {
     "binwalk": "",
@@ -22,5 +23,11 @@
     "use_binwalk": true,
     "max_extract_bytes": 2147483648,
     "max_extract_files": 100000
+  },
+  "finder": {
+    "google_cse_cx": "",
+    "searxng_url": "",
+    "gitlab_url": "",
+    "max_download_bytes": 8589934592
   }
 }

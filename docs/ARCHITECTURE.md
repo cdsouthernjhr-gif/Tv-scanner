@@ -1,6 +1,6 @@
 # TV Intelligence Scanner — Technical Architecture
 
-Version 0.4 (Phases 1–4 implemented). This document is the reference for all later phases.
+Version 0.5 (Phases 1–5 implemented). This document is the reference for all later phases.
 
 ## 1. Goals and non-negotiable principles
 
@@ -105,26 +105,12 @@ See `app/modules/hardware_analyzer/README.md` for evidence levels and summary ru
 * Migration `0004`: `firmware_analysis_runs`, `firmware_components`, `firmware_metadata`, `firmware_extracted_files`, `firmware_analysis.run_id`.
 See `app/modules/firmware_analyzer/README.md`.
 
-### Phase 5 — Universal Firmware Finder
-```
-BaseSearchProvider (abstract)
-  name, source_type, rate_limit (req/min), requires_token
-  build_queries(SearchCriteria) -> list[str]
-  search(query) -> list[SearchHit]      # must return real URLs only
-├── OfficialManufacturerProvider  (per-brand support-page adapters, robots.txt aware)
-├── GitHubProvider               (REST: /search/repositories, /repos/{o}/{r}/releases; optional token; X-RateLimit monitoring)
-├── GitLabProvider               (REST /api/v4/projects?search=)
-├── TechnicalDocumentationProvider
-├── ArchiveSearchProvider        (Internet Archive advancedsearch API; licence checked)
-└── CommunitySearchProvider      (only public pages allowed by robots.txt/ToS)
-```
-`SearchEngine` runs providers in a thread pool, applies a token-bucket rate limiter and
-retry with exponential back-off, deduplicates by normalised URL + sha256, validates URLs,
-stores every hit in `firmware_search_results` with timestamp. The `MatchingEngine`
-compares hit metadata with the project and yields `VERIFIED MATCH` (vendor hash/signature
-+ exact model/board), `HIGH CONFIDENCE MATCH`, `POSSIBLE MATCH`, `INCOMPATIBLE`,
-`INSUFFICIENT INFORMATION`. Filename similarity alone can never exceed `POSSIBLE MATCH`.
-Tokens stored with `keyring` (Windows Credential Manager).
+### Phase 5 — Universal Firmware Finder (implemented)
+* `modules/firmware_finder/` — `criteria.py`, `http.py`, `providers/` (GitHub, open-source, GitLab, Internet Archive, web-search backends Google CSE/Brave/SearXNG with official/community/documentation/SourceForge providers), `matching.py`, `engine.py`.
+* `security/secrets.py` (keyring → Windows Credential Manager), `security/malware_scan.py` (Defender/ClamAV).
+* `modules/reports/search_report.py` — Firmware Search Report PDF/CSV/JSON.
+* Migration `0005`: `search_sessions`, extended `firmware_search_results`, `firmware_downloads`.
+See `app/modules/firmware_finder/README.md` for verdict rules and access policy.
 
 ### Phase 6 — Software & Service Menu
 * OS fingerprinting from firmware contents (build.prop, /etc/os-release, Tizen/webOS markers) and user-entered system-info screens (OCR).

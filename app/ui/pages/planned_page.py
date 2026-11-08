@@ -25,9 +25,6 @@ class PlannedModulePage(QWidget):
 
 
 PLANNED = {
-    "Universal Firmware Finder": (5, "Provider-based search (official manufacturer pages, GitHub REST API, "
-                                     "GitLab, technical docs, archives, community) with rate limiting, "
-                                     "robots.txt compliance, deduplication, provenance and match scoring."),
     "Software Analyzer": (6, "OS/kernel/build identification from system menus, official diagnostics "
                              "and firmware contents."),
     "Factory & Service Menu": (6, "Database of documented, manufacturer-sanctioned service menus. "

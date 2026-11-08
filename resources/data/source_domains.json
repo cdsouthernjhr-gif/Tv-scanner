@@ -1,0 +1,22 @@
+{
+  "_comment": "Domains used to CLASSIFY search results and to restrict site: queries. 'official' = primary brand-owned domains (a result is 'official' only if its host is this domain or a subdomain). Verify and extend for your region; the application never constructs download URLs from these.",
+  "official": {
+    "Samsung": ["samsung.com"],
+    "LG": ["lg.com"],
+    "Sony": ["sony.com", "sony.net"],
+    "Panasonic": ["panasonic.com"],
+    "Philips": ["philips.com"],
+    "TCL": ["tcl.com"],
+    "Hisense": ["hisense.com"],
+    "Xiaomi": ["mi.com"],
+    "Vizio": ["vizio.com"],
+    "Skyworth": ["skyworth.com"],
+    "Haier": ["haier.com"],
+    "Grundig": ["grundig.com"]
+  },
+  "community": ["badcaps.net", "eevblog.com", "xda-developers.com", "avsforum.com", "elektroda.com"],
+  "code_hosting": ["github.com", "gitlab.com", "sourceforge.net"],
+  "archives": ["archive.org"],
+  "firmware_extensions": [".bin", ".img", ".pkg", ".zip", ".rom", ".epk", ".upg", ".tar", ".tgz", ".gz", ".7z", ".xz", ".bz2", ".msd", ".lzma"],
+  "risk_keywords": ["keys", "key database", "decrypt", "crack", "cracked", "bypass", "jailbreak", "root exploit", "patched", "modded", "custom rom", "unlock"]
+}

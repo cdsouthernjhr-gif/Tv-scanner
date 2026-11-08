@@ -12,8 +12,8 @@ package and must:
 |---|---|---|
 | `binwalk/` | 4 | Implemented — v2 tested, v3 parser untested; see `binwalk/README.md` |
 | `ghidra/` | 4 | Implemented — tested with stand-in only; see `ghidra/README.md` |
-| `github/` | 5 | Not implemented — REST search + releases, optional token via keyring |
-| `manufacturer/` | 5 | Not implemented — per-brand official support-page adapters |
-| `community/` | 5 | Not implemented — public, ToS-compliant sources only |
+| GitHub / GitLab / Archive / web search | 5 | Implemented as Firmware Finder providers in `app/modules/firmware_finder/providers/` |
+| `manufacturer/` | — | Reserved for documented vendor download APIs (none publicly documented yet); official sites are covered by site-restricted web search |
+| `community/` | 5 | Covered by `CommunitySearchProvider` (search-API results only, no scraping) |
 
 A detailed README is added to each package when it is implemented.

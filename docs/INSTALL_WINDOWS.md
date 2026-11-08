@@ -46,6 +46,20 @@ Without Tesseract the app runs normally, but the OCR buttons are disabled.
 
 Optional second engine: `pip install paddleocr paddlepaddle` (large download; auto-detected).
 
+## Online firmware search (Phase 5)
+The application starts **offline**. Enable online search with the checkbox on the *Universal Firmware Finder*
+page or in *Settings*. Optional API keys (stored in Windows Credential Manager, never in files):
+
+| Key | Where to get it | Enables |
+|---|---|---|
+| GitHub token | github.com → Settings → Developer settings → fine-grained token (public read-only is enough) | higher rate limit, code search |
+| GitLab token | gitlab.com → Preferences → Access tokens (`read_api`) | higher rate limit |
+| Google Programmable Search key + engine id (cx) | programmablesearchengine.google.com + Google Cloud API key | official / community / documentation / SourceForge providers |
+| Brave Search key | api.search.brave.com | same providers (can run alongside Google) |
+| SearXNG URL | your own SearXNG instance with JSON output enabled | same providers, no key |
+
+Microsoft Defender is used automatically to scan downloaded firmware.
+
 ## Optional external tools
 Detected automatically on the *Settings* page.
 

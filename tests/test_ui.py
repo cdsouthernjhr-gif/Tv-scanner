@@ -1,4 +1,6 @@
 """UI smoke/integration tests (run headless with QT_QPA_PLATFORM=offscreen)."""
+from PySide6.QtCore import Qt
+
 from app.ui.main_window import SIDEBAR, MainWindow
 from app.ui.pages.planned_page import PlannedModulePage
 
@@ -11,7 +13,7 @@ def test_main_window_navigation(qtbot, ctx):
         w.sidebar.setCurrentRow(i)
         assert w.stack.currentIndex() == i
     planned = [n for n, p in w.pages.items() if isinstance(p, PlannedModulePage)]
-    assert "Universal Firmware Finder" in planned
+    assert "Software Analyzer" in planned and "Universal Firmware Finder" not in planned
     assert "Dashboard" not in planned
 
 
@@ -238,3 +240,57 @@ def test_firmware_analyzer_async(qtbot, ctx, tmp_path):
     assert not fa.btn_analyze.isEnabled()
     qtbot.waitUntil(lambda: fa.run_id is not None, timeout=120000)
     assert "completed" in fa.integrity.text()
+
+
+# ---- Phase 5 UI ---------------------------------------------------------------------
+def test_finder_page_workflow(qtbot, ctx, tmp_path):
+    from app.modules.firmware_finder.http import RateLimiter
+    from fake_http import FakeSession
+    from test_firmware_finder import _github_routes
+    w = MainWindow(ctx)
+    qtbot.addWidget(w)
+    fp = w.pages["Universal Firmware Finder"]
+    assert not isinstance(fp, PlannedModulePage)
+    assert not fp.online.isChecked()                                    # offline-first
+    sess = FakeSession()
+    ctx.finder.http.session, ctx.finder.http.sleep, ctx.finder.http.limiter = sess, (lambda s: None), RateLimiter(1e4)
+    _github_routes(sess, b"firmware-bytes")
+    p = ctx.projects.create(TVProject(name="Bench", model_number="TESTTV55", mainboard="TP.MS338.PB801"))
+    w.navigate("Universal Firmware Finder")
+    fp.project.select_project(p.id)
+    fp.load_from_project()
+    assert fp.inputs["model_number"].text() == "TESTTV55"
+    assert "[model] TESTTV55 firmware" in fp.queries.toPlainText()
+    fp.online.setChecked(True)
+    assert ctx.config.get("network.offline_mode") is False
+    for i in range(fp.providers.count()):
+        it = fp.providers.item(i)
+        it.setCheckState(Qt.Checked if it.data(Qt.UserRole) == "GitHub" else Qt.Unchecked)
+    sid = fp.search()
+    assert fp.table.rowCount() >= 2 and fp.history.rowCount() == 1
+    row = [r for r in range(fp.table.rowCount()) if fp.table.item(r, 4).text() == "TESTTV55_v2.0.bin"][0]
+    fp.table.selectRow(row)
+    assert fp.details.rowCount() >= 1 and "Risk" in fp.reasons.text()
+    out = fp.download(fp.table.item(row, 0).data(Qt.UserRole))
+    assert out["firmware_id"] and ctx.library.get(out["firmware_id"]).download_url
+    fp.session_id = sid
+    for fmt in ("PDF", "CSV", "JSON"):
+        path = {"PDF": ctx.search_reports.generate_pdf, "CSV": ctx.search_reports.export_csv,
+                "JSON": ctx.search_reports.export_json}[fmt](sid)
+        assert path.exists()
+
+
+def test_settings_api_keys_never_plaintext(qtbot, ctx):
+    w = MainWindow(ctx)
+    qtbot.addWidget(w)
+    s = w.pages["Settings"]
+    s.key_name.setCurrentIndex(s.key_name.findData("github_token"))
+    s.key_value.setText("ghp_supersecretvalue1")
+    s.store_key()
+    assert s.key_value.text() == "" and "ghp_…e1" in s.key_status.text()
+    s.offline.setChecked(False)
+    s.cfg_fields["finder.searxng_url"].setText("https://searx.example.org")
+    s.save_network()
+    txt = ctx.config.settings_path.read_text()
+    assert "searx.example.org" in txt and "ghp_" not in txt
+    assert ctx.config.get("network.offline_mode") is False
