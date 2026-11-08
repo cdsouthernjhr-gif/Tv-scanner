@@ -1,0 +1,19 @@
+# Integrations
+
+Adapters for external tools and online sources. Each integration lives in its own
+package and must:
+
+1. Be optional — absence of the tool/service disables only the dependent feature.
+2. Never modify original firmware (operate on `FirmwareLibrary.make_working_copy()` output).
+3. Run external processes with explicit argument lists (no shell), a timeout, and output captured to the analysis record.
+4. For online sources: use official APIs where available, respect robots.txt/ToS and rate limits, never bypass login/CAPTCHA/paywalls, and store the real source URL + retrieval time.
+
+| Package | Phase | Status |
+|---|---|---|
+| `binwalk/` | 4 | Not implemented — tool detection available (`services/external_tools.py`) |
+| `ghidra/` | 4 | Not implemented — headless (`analyzeHeadless`) adapter planned |
+| `github/` | 5 | Not implemented — REST search + releases, optional token via keyring |
+| `manufacturer/` | 5 | Not implemented — per-brand official support-page adapters |
+| `community/` | 5 | Not implemented — public, ToS-compliant sources only |
+
+A detailed README is added to each package when it is implemented.

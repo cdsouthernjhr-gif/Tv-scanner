@@ -1,0 +1,21 @@
+{
+  "paths": {
+    "firmware_library": ""
+  },
+  "network": {
+    "offline_mode": true,
+    "request_timeout_seconds": 20,
+    "max_requests_per_minute": 30,
+    "user_agent": "TVIntelligenceScanner/0.1 (+offline-first research tool)"
+  },
+  "tools": {
+    "binwalk": "",
+    "seven_zip": "",
+    "ghidra_headless": "",
+    "hxd": "",
+    "tesseract": ""
+  },
+  "ui": {
+    "theme": "dark"
+  }
+}
