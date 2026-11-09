@@ -177,12 +177,15 @@ def test_upnp_discover_and_link(ctx, desc_server):
     assert ctx.software.device_sessions(p.id)[0]["authorization_note"] == "Own TV, owner present"
 
 
-def _fake_adb(tmp_path, unauthorized=False):
+def _fake_adb(tmp_path, unauthorized=False, connect_ok=True):
     if os.name == "nt":
         pytest.skip("fake adb uses a POSIX shell script")
     py = tmp_path / "fake_adb.py"
     py.write_text(
         "import sys\n"
+        "if sys.argv[1] == 'connect':\n"
+        f"    open(r'{tmp_path / 'connect.log'}', 'a').write(sys.argv[2] + '\\n')\n"
+        f"    print(('connected to ' if {connect_ok} else 'failed to connect to ') + sys.argv[2]); sys.exit(0)\n"
         f"if {unauthorized}:\n    sys.stderr.write('error: device unauthorized'); sys.exit(1)\n"
         "a = ' '.join(sys.argv[3:])\n"
         "out = {'shell getprop': '[ro.build.version.release]: [11]\\n[ro.product.model]: [TESTTV55]\\n[ro.build.display.id]: [RTM.2026]',\n"
@@ -215,6 +218,14 @@ def test_adb_read_only_collection(ctx, tmp_path):
     assert "resolution 3840x2160" in by("display") and by("network_interface") == {"eth0", "wlan0"}
     assert {"8821cu", "mtk_drm"} <= by("driver")
     assert all(x["source_type"] == "adb" for x in f)
+    assert (tmp_path / "connect.log").read_text().split() == ["192.168.1.50:5555"]   # adb connect ran first
+
+
+def test_adb_network_connect_failure(ctx, tmp_path):
+    p = ctx.projects.create(TVProject(name="t"))
+    with pytest.raises(ConnectionError, match="Could not connect"):
+        ctx.software.adb_collect(p.id, "192.168.1.77:5555", "Owner's TV, owner present",
+                                 _fake_adb(tmp_path, connect_ok=False))
 
 
 def test_adb_unauthorized_device(ctx, tmp_path):

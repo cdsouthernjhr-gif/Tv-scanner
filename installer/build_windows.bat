@@ -11,7 +11,7 @@ dist\TVIntelligenceScanner\TVIntelligenceScanner.exe --self-check || exit /b 1
 dist\TVIntelligenceScanner\TVIntelligenceScanner.exe --smoke-test || exit /b 1
 set ISCC="%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe"
 if exist %ISCC% (
-  %ISCC% /DMyAppVersion=1.0.0 installer\tvis_setup.iss || exit /b 1
+  %ISCC% /DMyAppVersion=1.0.1 installer\tvis_setup.iss || exit /b 1
   echo Installer: dist\installer\
 ) else (
   echo Inno Setup 6 not found - skipping installer. Install from jrsoftware.org to build the setup EXE.

@@ -150,9 +150,35 @@ _TARGET = re.compile(r"^[A-Za-z0-9.:_-]{3,64}$")
 
 
 def find_adb(configured: str | None = None) -> str | None:
+    """adb on PATH, else the usual Windows locations of Android SDK Platform-Tools."""
+    import os
     if configured and shutil.which(configured):
         return shutil.which(configured)
-    return shutil.which("adb") or shutil.which("adb.exe")
+    found = shutil.which("adb") or shutil.which("adb.exe")
+    if found or os.name != "nt":
+        return found
+    for base in (os.environ.get("LOCALAPPDATA", ""), os.environ.get("ProgramFiles", ""), "C:\\"):
+        for sub in (r"Android\Sdk\platform-tools", "platform-tools"):
+            c = os.path.join(base, sub, "adb.exe") if base else ""
+            if c and os.path.isfile(c):
+                return c
+    return None
+
+
+def adb_connect(adb: str, target: str, timeout: int = 15) -> str:
+    """``adb connect host:port`` for network debugging. adb often exits 0 even when the
+    connection failed, so the output text is checked."""
+    try:
+        p = subprocess.run([adb, "connect", target], capture_output=True, text=True, timeout=timeout,
+                           stdin=subprocess.DEVNULL, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    except subprocess.TimeoutExpired:
+        raise ConnectionError(f"No answer from {target} (timeout). Check the IP address, that the TV is on the "
+                              "same network and that network debugging is enabled on the TV.") from None
+    msg = ((p.stdout or "") + (p.stderr or "")).strip()
+    if "connected to" not in msg.lower():
+        raise ConnectionError(f"Could not connect to {target}: {msg[:300] or 'no output'}. Check the IP address, "
+                              "that the TV is on the same network and that network debugging is enabled.")
+    return msg
 
 
 def adb_query(adb: str, target: str, queries: list[str], timeout: int = 20) -> dict[str, str]:
@@ -162,10 +188,13 @@ def adb_query(adb: str, target: str, queries: list[str], timeout: int = 20) -> d
     host = target.split(":")[0]
     if ":" in target and not is_lan_address(host):
         raise ValueError("network ADB only to LAN addresses")
-    out = {}
     for q in queries:
         if q not in ADB_READ_ONLY:
             raise ValueError(f"'{q}' is not an allowed read-only query")
+    if ":" in target:
+        adb_connect(adb, target)
+    out = {}
+    for q in queries:
         args = [adb, "-s", target] + ADB_READ_ONLY[q]
         try:
             p = subprocess.run(args, capture_output=True, text=True, timeout=timeout, stdin=subprocess.DEVNULL,

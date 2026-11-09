@@ -209,7 +209,9 @@ class SoftwareAnalyzer:
         note = dev.require_authorization(authorization_note)
         adb = adb_path or dev.find_adb()
         if not adb:
-            raise RuntimeError("adb (Android platform-tools) not found")
+            raise RuntimeError("adb not found. Install Android SDK Platform-Tools "
+                               "(developer.android.com/tools/releases/platform-tools), extract it and add the "
+                               "platform-tools folder to PATH, then restart the application.")
         queries = queries or list(dev.ADB_READ_ONLY)
         res = dev.adb_query(adb, target, queries)
         sid = self._session(project_id, "adb", target, note, "completed",

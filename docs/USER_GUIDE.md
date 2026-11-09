@@ -79,6 +79,28 @@ Data anda (pangkalan data, perpustakaan firmware, laporan) disimpan di `%LOCALAP
 * Mengubah tetapan kilang: **Plan** → **Record backup** (jika manual menyebut cara backup) → **Confirm** (taip
   `CHANGE <setting>`) → **Mark performed**. Aplikasi sendiri tidak mengubah tetapan TV.
 
+## 7b. Sambungan ke TV (baca-sahaja)
+Lokasi: **Software Analyzer → tab "Device (authorised)"**. Pilih projek TV dahulu. Isi medan *Authorisation*
+(sekurang-kurangnya 10 aksara, contoh `TV sendiri, pemilik hadir`), barulah butang berfungsi.
+
+**A. UPnP (kebanyakan Smart TV: Samsung, LG, Sony, TCL, Hisense, ...)**
+1. TV dihidupkan dan disambung ke **rangkaian Wi-Fi/LAN yang sama** dengan PC.
+2. Klik **Discover UPnP devices on LAN**. Jika Windows Firewall bertanya, benarkan rangkaian *Private*.
+3. Pilih TV dalam senarai → **Link selected device to project**. Jenama, model dan nombor siri disimpan sebagai bukti.
+
+**B. ADB (Android TV / Google TV sahaja)**
+1. Pasang *Android SDK Platform-Tools* (https://developer.android.com/tools/releases/platform-tools), ekstrak dan
+   tambah folder `platform-tools` ke PATH (atau ekstrak ke `C:\platform-tools`). Mulakan semula aplikasi.
+2. Di TV: *Settings → Device Preferences → About* → klik **Build** 7 kali (Developer options aktif) →
+   *Developer options* → hidupkan **USB debugging / Network debugging**.
+3. Cari alamat IP TV: *Settings → Network → (rangkaian anda)*.
+4. Dalam aplikasi, taip `IP:5555` (contoh `192.168.1.50:5555`) → **Collect via ADB (read-only)**.
+5. Di TV, terima mesej **"Allow USB debugging?"** (tandakan *Always allow*), kemudian klik butang sekali lagi.
+
+Hanya arahan baca-sahaja dibenarkan (getprop, uname, senarai pakej, saiz skrin, rangkaian, modul kernel).
+TV bukan Android (Tizen, webOS, Linux biasa) **tidak** mempunyai ADB — gunakan UPnP, foto skrin *System Information*
+dan analisis firmware. Aplikasi tidak menggunakan SSH/Telnet/UART dan tidak meneka kata laluan.
+
 ## 8. Keserasian dan Upgrade
 * **Compatibility Analyzer**: pilih TV dan firmware calon (yang telah dianalisis). Baseline = firmware asal TV yang
   telah dianalisis (kategori *Original*). Setiap kriteria (model, board, SoC, CPU, RAM, flash, panel, bootloader,
@@ -104,5 +126,8 @@ laporan mempunyai tarikh, sumber, keputusan dan keyakinan, dan didaftarkan denga
 | SquashFS/ext4 tidak diekstrak | Pasang 7-Zip |
 | Carian gagal: "Offline mode" | Tandakan *Online search enabled* |
 | "rate limited; retry after N s" | Tunggu, atau masukkan token GitHub di *Settings* |
-| UPnP tidak menemui TV | Benarkan aplikasi dalam Windows Firewall (rangkaian *Private*) |
+| UPnP tidak menemui TV | TV dan PC dalam rangkaian sama; benarkan aplikasi dalam Windows Firewall (rangkaian *Private*); hidupkan ciri berkongsi skrin/DLNA di TV |
+| "adb not found" | Pasang Platform-Tools dan tambah ke PATH (lihat 7b) |
+| "Could not connect to …:5555" | IP salah, TV dalam rangkaian lain, atau *Network debugging* tidak dihidupkan |
+| "The TV has not authorised this computer" | Terima mesej di skrin TV, kemudian cuba semula |
 | Log | `%LOCALAPPDATA%\TVIntelligenceScanner\logs\application.log` |

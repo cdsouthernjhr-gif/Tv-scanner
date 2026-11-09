@@ -54,7 +54,7 @@ jobs:
       - name: Build installer (Inno Setup)
         run: |
           choco install innosetup -y --no-progress
-          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DMyAppVersion=1.0.0 installer\tvis_setup.iss
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DMyAppVersion=1.0.1 installer\tvis_setup.iss
 
       - name: Silent install, run installed EXE, uninstall
         run: |

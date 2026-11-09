@@ -1,11 +1,11 @@
 ; Inno Setup 6 script — builds TVIntelligenceScanner-Setup-<version>.exe
 ; Build (from the repository root, after PyInstaller):
-;   iscc /DMyAppVersion=1.0.0 installer\tvis_setup.iss
+;   iscc /DMyAppVersion=1.0.1 installer\tvis_setup.iss
 ; User data (%LOCALAPPDATA%\TVIntelligenceScanner: database, firmware library, reports) is NOT removed on
 ; uninstall, so firmware originals and evidence are never deleted by the installer.
 
 #ifndef MyAppVersion
-  #define MyAppVersion "1.0.0"
+  #define MyAppVersion "1.0.1"
 #endif
 #define MyAppName "TV Intelligence Scanner"
 #define MyAppExe "TVIntelligenceScanner.exe"
